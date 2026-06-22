@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bash Quest 🏰 — linuxbyOBA</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    /* ===== GAME STYLES ===== */
+    body { overflow-x: hidden; }
+
+    .game-wrap {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1.5rem 4rem;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(0,230,118,0.03) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(79,195,247,0.04) 0%, transparent 50%),
+        var(--bg);
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 820px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- title ---- */
+    .game-title-bar {
+      text-align: center;
+      padding: 1.5rem 0 0.5rem;
+    }
+    .game-pretitle {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--green);
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+    }
+    .game-title {
+      font-family: var(--font-mono);
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 900;
+      color: var(--text-hi);
+      letter-spacing: -0.02em;
+    }
+    .game-title span { color: var(--green); }
+    .game-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+
+    /* ---- profile icon ---- */
+    .profile-icon-link {
+      position: fixed;
+      top: 1.1rem;
+      right: 1.4rem;
+      z-index: 50;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-hi);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.05rem;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .profile-icon-link:hover { border-color: var(--green); box-shadow: 0 0 10px rgba(0,230,118,0.25); }
+    .profile-icon-link.logged-in {
+      border-color: rgba(0,230,118,0.4);
+      background: rgba(0,230,118,0.08);
+    }
+    .profile-icon-dot {
+      position: absolute;
+      bottom: -1px; right: -1px;
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      background: var(--border);
+      border: 2px solid var(--bg);
+    }
+    .profile-icon-dot.logged-in { background: var(--green); }
+
+    @media (max-width: 768px) {
+      .profile-icon-link { top: 14px; right: 56px; width: 34px; height: 34px; }
+    }
+
+    /* ---- HUD ---- */
+    .hud {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 0.85rem 1.2rem;
+    }
+    .hud-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+    .hud-label { color: var(--text-dim); }
+    .hud-value { color: var(--green); font-weight: 700; }
+    .hud-sep { color: var(--border-hi); margin: 0 0.25rem; }
+
+    .lives-display { display: flex; gap: 3px; }
+    .life-heart { font-size: 0.85rem; }
+    .life-heart.lost { opacity: 0.2; filter: grayscale(1); }
+
+    .progress-bar-wrap {
+      flex: 1;
+      min-width: 140px;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--cyan));
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    /* ---- Scene panel ---- */
+    .scene-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .scene-art {
+      background: #080b0f;
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      line-height: 1.45;
+      color: var(--green);
+      letter-spacing: 0.03em;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .scene-art pre {
+      margin: 0;
+      font-size: 0.72rem;
+      line-height: 1.4;
+    }
+
+    .level-badge {
+      position: absolute;
+      top: 0.75rem; right: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--amber);
+      background: rgba(255,203,107,0.1);
+      border: 1px solid rgba(255,203,107,0.25);
+      border-radius: 20px;
+      padding: 0.2rem 0.6rem;
+    }
+
+    .scene-body { padding: 1.4rem; }
+
+    .level-title {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-hi);
+      margin-bottom: 0.5rem;
+    }
+    .level-title .level-num { color: var(--green); margin-right: 0.4rem; }
+
+    .story-text {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+      margin-bottom: 1.1rem;
+    }
+    .story-text strong { color: var(--cyan); }
+    .story-text code {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--amber);
+      background: rgba(255,203,107,0.07);
+      padding: 0.05rem 0.3rem;
+      border-radius: 3px;
+    }
+
+    /* ---- Challenge box ---- */
+    .challenge-box {
+      background: var(--bg);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .challenge-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .challenge-q {
+      font-size: 0.9rem;
+      color: var(--text-hi);
+      line-height: 1.6;
+      font-weight: 500;
+    }
+    .challenge-q code {
+      font-family: var(--font-mono);
+      color: var(--amber);
+      font-size: 0.85rem;
+      background: rgba(255,203,107,0.08);
+      padding: 0.05rem 0.3rem;
+      border-radius: 3px;
+    }
+
+    /* Fill-in-the-blank */
+    .code-fill-wrap {
+      background: #080b0f;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: 0.6rem;
+    }
+    .fill-blank {
+      display: inline-block;
+      border-bottom: 2px solid var(--green);
+      min-width: 80px;
+      color: var(--green);
+      text-align: center;
+      padding: 0 0.3rem;
+    }
+
+    /* MCQ options */
+    .mcq-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .mcq-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.65rem 0.9rem;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      text-align: left;
+      transition: all 0.12s;
+    }
+    .mcq-btn:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); background: rgba(79,195,247,0.05); }
+    .mcq-btn.correct  { border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.07); }
+    .mcq-btn.wrong    { border-color: var(--red); color: var(--red); background: rgba(255,83,112,0.07); }
+    .mcq-btn:disabled { cursor: default; }
+    .mcq-key {
+      width: 22px; height: 22px;
+      border-radius: 4px;
+      background: var(--border);
+      color: var(--text-dim);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+    }
+
+    /* Text input */
+    .answer-row {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+    }
+    .answer-input {
+      flex: 1;
+      background: #080b0f;
+      border: 1px solid var(--border-hi);
+      border-radius: var(--radius);
+      padding: 0.6rem 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--green);
+      outline: none;
+      transition: border-color 0.12s;
+    }
+    .answer-input:focus { border-color: var(--green); }
+    .answer-input.shake { animation: shake 0.35s ease; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-6px); }
+      40%      { transform: translateX(6px); }
+      60%      { transform: translateX(-4px); }
+      80%      { transform: translateX(4px); }
+    }
+    .submit-btn {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #000;
+      background: var(--green);
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      font-weight: 700;
+      transition: opacity 0.12s;
+    }
+    .submit-btn:hover { opacity: 0.85; }
+    .submit-btn:disabled { opacity: 0.4; cursor: default; }
+
+    /* Hint */
+    .hint-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .hint-btn {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.25rem 0.65rem;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .hint-btn:hover { color: var(--amber); border-color: var(--amber); }
+    .hint-text {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--amber);
+      display: none;
+    }
+    .hint-text.visible { display: block; }
+
+    /* ---- Feedback ---- */
+    .feedback-box {
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.83rem;
+      line-height: 1.55;
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .feedback-box.show { display: block; }
+    .feedback-box.success {
+      background: rgba(0,230,118,0.07);
+      border: 1px solid rgba(0,230,118,0.25);
+      color: var(--green);
+    }
+    .feedback-box.failure {
+      background: rgba(255,83,112,0.07);
+      border: 1px solid rgba(255,83,112,0.22);
+      color: #ff8fa3;
+    }
+
+    /* ---- Action buttons ---- */
+    .action-row {
+      display: flex;
+      gap: 0.65rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .next-btn {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #000;
+      background: var(--green);
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.6rem 1.4rem;
+      cursor: pointer;
+      font-weight: 700;
+      display: none;
+    }
+    .next-btn.show { display: block; }
+    .next-btn:hover { opacity: 0.88; }
+
+    .skip-btn {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.55rem 1rem;
+      cursor: pointer;
+    }
+    .skip-btn:hover { color: var(--text); border-color: var(--border-hi); }
+
+    /* ---- Level map ---- */
+    .level-map {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.1rem 1.3rem;
+    }
+    .level-map-title {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      margin-bottom: 0.7rem;
+    }
+    .level-dots {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .level-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      cursor: default;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .level-dot.done    { background: var(--green); border-color: var(--green); color: #000; font-weight: 700; }
+    .level-dot.current { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 8px rgba(79,195,247,0.3); }
+    .level-dot.locked  { opacity: 0.35; }
+    .level-connector {
+      flex: 1;
+      height: 2px;
+      background: var(--border);
+      min-width: 6px;
+      max-width: 16px;
+    }
+    .level-connector.done { background: var(--green); }
+
+    @media (max-width: 768px) {
+      .level-dot { width: 24px; height: 24px; font-size: 0.56rem; }
+    }
+
+    /* ---- Win screen ---- */
+    .win-screen {
+      display: none;
+      text-align: center;
+      padding: 3rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid rgba(0,230,118,0.3);
+      border-radius: var(--radius-lg);
+    }
+    .win-screen.show { display: block; }
+    .win-art {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--green);
+      line-height: 1.4;
+      margin-bottom: 1.5rem;
+    }
+    .win-title {
+      font-family: var(--font-mono);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--green);
+      margin-bottom: 0.5rem;
+    }
+    .win-sub { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 1.5rem; line-height: 1.6; }
+    .win-score {
+      font-family: var(--font-mono);
+      font-size: 1.5rem;
+      color: var(--amber);
+      margin-bottom: 1.5rem;
+    }
+    .restart-btn {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: #000;
+      background: var(--green);
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.7rem 2rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    /* ---- Game over screen ---- */
+    .gameover-screen {
+      display: none;
+      text-align: center;
+      padding: 3rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid rgba(255,83,112,0.3);
+      border-radius: var(--radius-lg);
+    }
+    .gameover-screen.show { display: block; }
+    .gameover-title {
+      font-family: var(--font-mono);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--red);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ---- learn-tip ---- */
+    .learn-tip {
+      background: rgba(199,146,234,0.06);
+      border: 1px solid rgba(199,146,234,0.18);
+      border-radius: var(--radius);
+      padding: 0.7rem 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #c792ea;
+      line-height: 1.55;
+      margin-top: 0.75rem;
+    }
+    .learn-tip strong { color: #e0b8ff; }
+
+    /* ---- signup nudge modal ---- */
+    .nudge-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,7,10,0.78);
+      backdrop-filter: blur(2px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .nudge-backdrop.show { display: flex; }
+
+    .nudge-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--bg-card);
+      border: 1px solid rgba(0,230,118,0.3);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem 1.5rem;
+      position: relative;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      animation: nudge-in 0.22s ease;
+    }
+    @keyframes nudge-in {
+      from { opacity: 0; transform: translateY(8px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .nudge-close {
+      position: absolute;
+      top: 0.7rem; right: 0.8rem;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.2rem;
+    }
+    .nudge-close:hover { color: var(--text); }
+
+    .nudge-icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
+    .nudge-title {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-hi);
+      margin-bottom: 0.5rem;
+    }
+    .nudge-body {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 1.2rem;
+    }
+    .nudge-body strong { color: var(--green); }
+
+    .nudge-actions { display: flex; flex-direction: column; gap: 0.55rem; }
+    .nudge-primary {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #000;
+      background: var(--green);
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+    .nudge-primary:hover { opacity: 0.88; }
+    .nudge-secondary {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+    }
+    .nudge-secondary:hover { color: var(--text); border-color: var(--border-hi); }
+
+    @media (max-width: 768px) {
+      .game-wrap { margin-left: 0; padding-top: 68px; padding-left: 0.75rem; padding-right: 0.75rem; }
+      .scene-art { font-size: 0.6rem; min-height: 140px; }
+      .scene-art pre { font-size: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Profile icon -->
+  <a href="account.html" class="profile-icon-link" id="profileIconLink" title="Account">
+    <span id="profileIconEmoji">👤</span>
+    <span class="profile-icon-dot" id="profileIconDot"></span>
+  </a>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-bracket">[</span>linux<span class="logo-accent">byOBA</span><span class="logo-bracket">]</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <span class="nav-label">// navigation</span>
+        <ul>
+          <li><a href="index.html"   class="nav-link"><span class="nav-bullet">▸</span> Commands</a></li>
+          <li><a href="bash.html"    class="nav-link"><span class="nav-bullet">▸</span> Bash Scripting</a></li>
+          <li><a href="install.html" class="nav-link"><span class="nav-bullet">▸</span> Install Linux</a></li>
+          <li><a href="game.html"    class="nav-link active"><span class="nav-bullet">▸</span> 🎮 Bash Quest</a></li>
+          <li><a href="account.html" class="nav-link"><span class="nav-bullet">▸</span> 👤 Account</a></li>
+        </ul>
+      </div>
+      <div class="nav-section">
+        <span class="nav-label">// levels</span>
+        <ul id="sidebarLevelList"></ul>
+      </div>
+    </nav>
+    <div class="sidebar-footer"><span id="syncStatus">guest mode — progress saved locally</span></div>
+  </aside>
+
+  <header class="mobile-header">
+    <button class="menu-toggle" id="menuToggle">&#9776;</button>
+    <span class="mobile-title">🎮 Bash Quest</span>
+  </header>
+
+  <!-- GAME AREA -->
+  <div class="game-wrap">
+    <div class="game-container">
+
+      <div class="game-title-bar">
+        <div class="game-pretitle">// interactive bash scripting game</div>
+        <h1 class="game-title">Bash <span>Quest</span> 🏰</h1>
+        <p class="game-subtitle">Navigate 30 levels of increasing Linux command and bash scripting difficulty. Answer questions and fill in missing commands to reach the castle and capture the flag.</p>
+      </div>
+
+      <!-- HUD -->
+      <div class="hud">
+        <div class="hud-item">
+          <span class="hud-label">Level</span>
+          <span class="hud-value" id="hudLevel">1/30</span>
+        </div>
+        <span class="hud-sep">|</span>
+        <div class="hud-item">
+          <span class="hud-label">Score</span>
+          <span class="hud-value" id="hudScore">0</span>
+        </div>
+        <span class="hud-sep">|</span>
+        <div class="hud-item">
+          <span class="hud-label">Lives</span>
+          <div class="lives-display" id="livesDisplay"></div>
+        </div>
+        <span class="hud-sep">|</span>
+        <div class="hud-item" style="flex:1;gap:0.6rem">
+          <span class="hud-label">Progress</span>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level Map -->
+      <div class="level-map">
+        <div class="level-map-title">// map — from the terminal to the castle</div>
+        <div class="level-dots" id="levelMap"></div>
+      </div>
+
+      <!-- Main scene panel -->
+      <div class="scene-panel" id="scenePanel">
+        <div class="scene-art" id="sceneArt">
+          <div class="level-badge" id="levelBadge">Level 1</div>
+          <pre id="asciiArt"></pre>
+        </div>
+        <div class="scene-body">
+          <div class="level-title"><span class="level-num" id="levelNum">#01</span> <span id="levelTitle"></span></div>
+          <div class="story-text" id="storyText"></div>
+
+          <div class="challenge-box">
+            <div class="challenge-label">// your challenge</div>
+            <div class="challenge-q" id="challengeQ"></div>
+            <div id="challengeInput"></div>
+          </div>
+
+          <div class="hint-row">
+            <button class="hint-btn" id="hintBtn">💡 Hint</button>
+            <span class="hint-text" id="hintText"></span>
+          </div>
+
+          <div class="feedback-box" id="feedbackBox"></div>
+          <div class="learn-tip" id="learnTip" style="display:none"></div>
+
+          <div class="action-row">
+            <button class="next-btn" id="nextBtn">Next Level →</button>
+            <button class="skip-btn" id="skipBtn">Skip (–5 pts)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Win screen -->
+      <div class="win-screen" id="winScreen">
+        <pre class="win-art">
+    /\        /\
+   /  \  /\  /  \
+  / /\ \/ /\/ /\ \
+ / /  \/ /  \/ /  \
+/______|_|_____|____\
+|  CASTLE CAPTURED! |
+|____________________|
+        🚩 CTF 🚩</pre>
+        <div class="win-title">FLAG CAPTURED!</div>
+        <div class="win-sub">You navigated all 30 levels and captured the flag at the castle.<br/>You are now a Linux & Bash Scripting warrior. 🗡️</div>
+        <div class="win-score">Final Score: <span id="finalScore">0</span> pts</div>
+        <button class="restart-btn" id="restartBtn">Play Again 🔄</button>
+      </div>
+
+      <!-- Game Over screen -->
+      <div class="gameover-screen" id="gameoverScreen">
+        <div style="font-size:3rem;margin-bottom:0.75rem">💀</div>
+        <div class="gameover-title">GAME OVER</div>
+        <div class="win-sub">You ran out of lives before reaching the castle.<br/>Study the commands and try again!</div>
+        <div class="win-score">Score: <span id="gameoverScore">0</span> pts</div>
+        <button class="restart-btn" id="restartBtn2" style="background:var(--red);color:#fff">Try Again 🔄</button>
+        <br/><br/>
+        <a href="index.html" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">← Study Commands First</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Signup nudge modal (shown once to guests at level 5) -->
+  <div class="nudge-backdrop" id="nudgeBackdrop">
+    <div class="nudge-card">
+      <button class="nudge-close" id="nudgeCloseBtn" aria-label="Close">✕</button>
+      <div class="nudge-icon">💾</div>
+      <div class="nudge-title">Don't lose your progress!</div>
+      <div class="nudge-body">
+        You've made it to <strong>Level 5</strong>. Right now your progress only lives in this browser — clear your cache or switch devices and it's gone.<br/><br/>
+        Create a free account to save your score and pick up where you left off, anywhere.
+      </div>
+      <div class="nudge-actions">
+        <a href="account.html" class="nudge-primary">Create Account / Log In</a>
+        <button class="nudge-secondary" id="nudgeDismissBtn">Keep playing as guest</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js?v=2026-06-20-2"></script>
+  <script>
+  (function(){
+    /* ============================================================
+       LEVEL DATA  — 30 levels: Linux commands + bash scripting,
+       beginner → advanced
+       type: 'mcq'   → multiple choice
+       type: 'fill'  → type the answer (fill in blank)
+       type: 'fill-inline' → shows code prefix + blank inline
+       ============================================================ */
+    const LEVELS = [
+      {
+        num: 1,
+        title: "The Terminal Gate",
+        topic: "basic bash",
+        story: `You stand before the <strong>Terminal Gate</strong>. The gate guardian says:<br/>"Every bash script must begin with a special line called a <strong>shebang</strong>. It tells the system which interpreter to use."<br/><br/>To pass, you must know how to open a bash script correctly.`,
+        art: `
+  ╔══════════════════╗
+  ║  ># _ terminal   ║
+  ║                  ║
+  ║  $ echo "hello"  ║
+  ║  hello           ║
+  ║  $ _             ║
+  ╚══════════════════╝
+        [ GATE ] 🚪`,
+        type: 'fill',
+        prefix: '',
+        question: `What is the correct shebang line to start a bash script?`,
+        answer: ['#!/bin/bash', '#! /bin/bash'],
+        hint: 'It starts with #! followed by the path to bash',
+        learn: `<strong>#!/bin/bash</strong> is called a "shebang". It must be the very first line of every bash script. It tells the OS to use /bin/bash to run the script.`,
+        points: 10,
+      },
+      {
+        num: 2,
+        title: "The Variable Valley",
+        topic: "variables",
+        story: `You enter <strong>Variable Valley</strong>. A sign reads:<br/><br/>"In bash, variables store data. You set them with <code>NAME=value</code> (no spaces!) and read them with <code>$NAME</code>."<br/><br/>The valley troll blocks the path. Answer his question to proceed.`,
+        art: `
+  🌿🌿🌿🌿🌿🌿🌿🌿🌿
+      name="hero"
+      echo $name
+  ➜   hero
+  🌿🌿🌿🌿🌿🌿🌿🌿🌿
+     🧌 TROLL AHEAD 🧌`,
+        type: 'mcq',
+        question: 'Which of the following correctly assigns and prints a variable in bash?',
+        options: [
+          'var = "linux"\necho $var',
+          'var="linux"\necho $var',
+          'set var "linux"\nprint var',
+          '$var="linux"\necho var',
+        ],
+        correct: 1,
+        hint: 'No spaces around the = sign in bash!',
+        learn: `<strong>var="linux"</strong> — no spaces around =. To read it, use <strong>$var</strong>. Spaces around = cause a "command not found" error because bash thinks "var" is a command.`,
+        points: 10,
+      },
+      {
+        num: 3,
+        title: "The Echo Forest",
+        topic: "input & output",
+        story: `Deep in the <strong>Echo Forest</strong>, every sound bounces back. Here you learn to read user input with <code>read</code> and print with <code>echo</code>.<br/><br/>The forest spirit demands you complete the missing command in this script:`,
+        art: `
+  🌲  🌲    🌲  🌲
+    🌲   🌲    🌲
+  echo "What is your name?"
+  _____ name
+  echo "Hello, $name!"
+  🌲  🌲    🌲  🌲`,
+        type: 'fill-inline',
+        prefix: 'echo "What is your name?"\n',
+        blank: '______',
+        suffix: ' name\necho "Hello, $name!"',
+        question: 'Fill in the missing command to read user input into a variable called <code>name</code>:',
+        answer: ['read', 'read -p'],
+        hint: 'The bash command to read input from the user is a 4-letter word',
+        learn: `<strong>read name</strong> pauses the script and waits for the user to type something, storing it in the variable <strong>name</strong>. Use <strong>read -p "prompt: " name</strong> to show a prompt on the same line.`,
+        points: 15,
+      },
+      {
+        num: 4,
+        title: "The Condition Crossroads",
+        topic: "if statements",
+        story: `You reach the <strong>Condition Crossroads</strong> — four paths, but only one is correct. The sign reads:<br/><br/>"Bash uses <code>if [ condition ]; then ... fi</code> to make decisions. Numeric comparisons use special flags: <code>-eq</code> (equal), <code>-gt</code> (greater than), <code>-lt</code> (less than)."`,
+        art: `
+        [CROSSROADS]
+           ⬆️ YES
+  ⬅️ NO  🧭  ➡️ MAYBE
+           ⬇️ ERROR
+  if [ $score -gt 50 ]; then
+    echo "You pass!"
+  fi`,
+        type: 'mcq',
+        question: 'Which if-statement correctly checks if a variable <code>age</code> is equal to 18?',
+        options: [
+          'if (age == 18); then',
+          'if [ $age -eq 18 ]; then',
+          'if [ age = 18 ] then',
+          'if { $age == 18 }; then',
+        ],
+        correct: 1,
+        hint: 'Bash uses [ ] for test conditions and -eq to compare numbers. Spaces inside [ ] are required!',
+        learn: `<strong>if [ $age -eq 18 ]; then</strong> — the spaces inside [ ] are mandatory. <strong>-eq</strong> means "equal to" for numbers. For strings use <strong>=</strong> or <strong>==</strong>.`,
+        points: 15,
+      },
+      {
+        num: 5,
+        title: "The Loop Lake",
+        topic: "for loops",
+        story: `You arrive at <strong>Loop Lake</strong>. Creatures circle endlessly. A fisher sits at the dock:<br/><br/>"Loops let you repeat code. A <code>for</code> loop iterates over a list. A <code>while</code> loop runs as long as a condition is true."<br/><br/>Complete the loop to cross the lake on the stepping stones:`,
+        art: `
+  🌊🌊🌊🌊🌊🌊🌊🌊🌊
+  for i in 1 2 3 4 5
+  do
+    echo "Stone $i"
+  done
+  🌊🌊🌊🌊🌊🌊🌊🌊🌊
+        🚣 fisher`,
+        type: 'fill-inline',
+        prefix: 'for i in 1 2 3 4 5\n',
+        blank: '____',
+        suffix: '\n  echo "Stone $i"\ndone',
+        question: 'Fill in the missing keyword that starts the loop body:',
+        answer: ['do'],
+        hint: 'The for loop structure is: for ... in ...; DO ... done',
+        learn: `<strong>do</strong> marks the beginning of the loop body, and <strong>done</strong> closes it. The full structure is: <code>for var in list; do ... done</code>. You can also use <code>for i in {1..10}</code> for ranges.`,
+        points: 15,
+      },
+      {
+        num: 6,
+        title: "The Function Fortress",
+        topic: "functions",
+        story: `You approach the <strong>Function Fortress</strong> — walls made of reusable code. The gatekeeper explains:<br/><br/>"Functions let you define a block of code once and call it many times. In bash, you define them with <code>function_name() { ... }</code> and call them just by writing the function name."`,
+        art: `
+  ╔═══════════════════╗
+  ║ greet() {         ║
+  ║   echo "Hello!"   ║
+  ║ }                 ║
+  ║                   ║
+  ║ greet   ← call it ║
+  ╚═══════════════════╝
+    🏰 FORTRESS`,
+        type: 'fill',
+        question: 'Write the bash function definition syntax to define a function called <code>deploy</code> that echoes "Deploying..."',
+        answer: ['deploy() {\n  echo "Deploying..."\n}', 'deploy() { echo "Deploying..."; }', 'function deploy() {\n  echo "Deploying..."\n}', 'function deploy { echo "Deploying..."; }'],
+        hint: 'Format: name() { commands; }  or  function name { commands; }',
+        learn: `<strong>deploy() { echo "Deploying..."; }</strong> — functions are defined with <code>name() { body; }</code>. You can also write <code>function name { body; }</code>. Call the function later by just typing <code>deploy</code>.`,
+        points: 20,
+      },
+      {
+        num: 7,
+        title: "The Argument Abyss",
+        topic: "script arguments",
+        story: `You peer into the <strong>Argument Abyss</strong>. Scripts can receive arguments when you run them:<br/><code>./myscript.sh hello world</code><br/><br/>Inside the script, <code>$1</code> is the first argument, <code>$2</code> is the second, <code>$0</code> is the script name itself, and <code>$#</code> is the total count of arguments.`,
+        art: `
+  ./quest.sh warrior 99
+       |         |
+      $1        $2
+  "warrior"    "99"
+       $0 = ./quest.sh
+       $# = 2
+  ——————————————————
+   ⚫ THE ABYSS ⚫`,
+        type: 'mcq',
+        question: 'You run: <code>./backup.sh /home/user /mnt/drive</code>\nWhat does <code>$2</code> contain inside the script?',
+        options: [
+          '/home/user',
+          '/mnt/drive',
+          './backup.sh',
+          '2',
+        ],
+        correct: 1,
+        hint: '$1 is first argument, $2 is second argument',
+        learn: `<strong>$2</strong> is <code>/mnt/drive</code> — the second argument. <strong>$1</strong> = first arg, <strong>$0</strong> = script name, <strong>$#</strong> = number of args, <strong>$@</strong> = all args as separate strings.`,
+        points: 20,
+      },
+      {
+        num: 8,
+        title: "The Pipe Pipeline",
+        topic: "pipes & redirection",
+        story: `You reach the <strong>Pipe Pipeline</strong> — a network of tubes that pass data between commands.<br/><br/>In bash scripts, <code>|</code> (pipe) sends output of one command into another. <code>&gt;</code> writes output to a file. <code>&gt;&gt;</code> appends. <code>2&gt;</code> redirects errors. <code>2&gt;&amp;1</code> merges stderr into stdout.`,
+        art: `
+  cmd1 | cmd2 | cmd3
+    |           |
+  stdout  →  stdin
+  ─────────────────
+  > file    (overwrite)
+  >> file   (append)
+  2> err    (errors)
+  ═════════════════
+  🔧 THE PIPELINE`,
+        type: 'fill',
+        question: 'Complete the command to search for "ERROR" in app.log, count the matches, AND save the count to a file called errors.txt:',
+        answer: ['grep "ERROR" app.log | wc -l > errors.txt', "grep 'ERROR' app.log | wc -l > errors.txt"],
+        hint: 'grep to search, | to pipe, wc -l to count, > to save to file',
+        learn: `<strong>grep "ERROR" app.log | wc -l > errors.txt</strong> — chains three operations: find lines with ERROR, count them, and write the number to a file. This is a core shell scripting pattern used constantly in DevOps and sysadmin work.`,
+        points: 20,
+      },
+      {
+        num: 9,
+        title: "The Guard Tower",
+        topic: "exit codes & error handling",
+        story: `You scale the <strong>Guard Tower</strong>. Every command in bash returns an <strong>exit code</strong> — <code>0</code> means success, anything else means failure. You can check it with <code>$?</code>.<br/><br/>Good scripts check if commands succeed before continuing. The soldiers here demand you show you know how to handle errors.`,
+        art: `
+  command runs...
+  ┌─────────────────┐
+  │ exit code = 0   │ ✅ success
+  │ exit code = 1   │ ❌ general error
+  │ exit code = 127 │ ❌ command not found
+  └─────────────────┘
+  echo $?  ← check last exit code
+  🗼 GUARD TOWER`,
+        type: 'mcq',
+        question: 'What does the following script do?\n\n<code>mkdir /opt/app || exit 1</code>',
+        options: [
+          'Creates the directory and exits with code 1',
+          'Creates the directory; if it fails, exits the script with error code 1',
+          'Prints exit code 1 after creating the directory',
+          'Always exits with code 1 regardless of mkdir result',
+        ],
+        correct: 1,
+        hint: '|| means "OR" — run the right side only if the left side FAILS',
+        learn: `<strong>||</strong> (OR operator) runs the right command only if the left one fails. <strong>&&</strong> (AND operator) runs the right only if the left succeeds. Together: <code>cmd && echo "ok" || echo "failed"</code> is a common pattern for error handling in bash.`,
+        points: 25,
+      },
+      {
+        num: 10,
+        title: "The Backup Bastion",
+        topic: "full bash script",
+        story: `You reach the <strong>Backup Bastion</strong>, a stronghold built from defensive scripting. The guardian presents a script with a missing piece — complete it to pass! 🛡️`,
+        art: `
+   _____________
+  |  BASTION    |
+  |  [defense]  |
+  |   🛡️  🛡️    |
+  |_____________|
+      walls of
+   validated code`,
+        type: 'fill',
+        question: 'Complete this backup script. Fill in the missing line that makes the script exit with an error if the backup directory does not exist:',
+        prefix: `#!/bin/bash\nBACKUP_DIR="/mnt/backup"\nSOURCE="/home/user"\n\n`,
+        suffix: `\n\ncp -r "$SOURCE" "$BACKUP_DIR/"\necho "Backup complete!"`,
+        answer: [
+          '[ -d "$BACKUP_DIR" ] || exit 1',
+          'if [ ! -d "$BACKUP_DIR" ]; then exit 1; fi',
+          '[ ! -d "$BACKUP_DIR" ] && exit 1',
+          'test -d "$BACKUP_DIR" || exit 1',
+        ],
+        hint: 'Use [ -d "path" ] to check if a directory exists. Combine with || exit 1 to quit on failure.',
+        learn: `<strong>[ -d "$BACKUP_DIR" ] || exit 1</strong> — <code>-d</code> tests if a path is a directory. If it doesn't exist, <code>|| exit 1</code> aborts the script. This prevents the script from silently backing up to the wrong place. Always validate inputs in real scripts!`,
+        points: 25,
+      },
+    {
+        num: 11,
+        title: "The Navigator's Hollow",
+        topic: "linux navigation",
+        story: `You enter the <strong>Navigator's Hollow</strong>, where paths twist like a maze. A wandering sysadmin explains: <code>pwd</code> prints your current location, <code>cd</code> changes directory, and <code>ls</code> lists what's around you.`,
+        art: `
+      📁 /home/user
+       └── 📁 docs
+       └── 📁 projects
+      pwd → /home/user
+      ──────────────
+       🧙 NAVIGATOR`,
+        type: 'mcq',
+        question: 'Which command prints the full path of your current working directory?',
+        options: ['ls', 'pwd', 'cd', 'dir'],
+        correct: 1,
+        hint: 'Think: "print working directory"',
+        learn: `<strong>pwd</strong> stands for "print working directory" and shows the absolute path of where you currently are in the filesystem.`,
+        points: 10,
+      },
+      {
+        num: 12,
+        title: "The Listing Library",
+        topic: "linux file listing",
+        story: `Shelves of files surround you in the <strong>Listing Library</strong>. The librarian only shows hidden files to those who know the secret flag for <code>ls</code>.`,
+        art: `
+      📚📚📚📚📚📚
+      ls       → visible files
+      ls -a    → all (incl. hidden)
+      ls -l    → long format
+      📚📚📚📚📚📚
+        👓 LIBRARIAN`,
+        type: 'mcq',
+        question: 'Which flag makes <code>ls</code> show hidden files (those starting with a dot)?',
+        options: ['ls -h', 'ls -a', 'ls -x', 'ls -hidden'],
+        correct: 1,
+        hint: 'Think: "all" files, including hidden ones',
+        learn: `<strong>ls -a</strong> shows all files, including hidden ones (files/folders starting with a dot, like <code>.bashrc</code>). <strong>ls -l</strong> shows a detailed "long" listing with permissions, owner, size, and date.`,
+        points: 10,
+      },
+      {
+        num: 13,
+        title: "The Copy Caverns",
+        topic: "linux file operations",
+        story: `Deep in the <strong>Copy Caverns</strong>, echoes duplicate everything. A miner explains: <code>cp</code> copies files, <code>mv</code> moves or renames them, and <code>rm</code> deletes them — carefully!`,
+        art: `
+      ⛏️  cp file.txt backup.txt
+      ⛏️  mv old.txt new.txt
+      ⛏️  rm unwanted.txt
+      ──────────────────
+         ⛰️ CAVERNS`,
+        type: 'fill',
+        question: 'Type the command to copy a file named <code>report.txt</code> to a new file named <code>report_backup.txt</code>:',
+        answer: ['cp report.txt report_backup.txt'],
+        hint: 'cp source destination',
+        learn: `<strong>cp source destination</strong> copies a file. The original stays in place and a new copy is created at the destination path/name.`,
+        points: 10,
+      },
+      {
+        num: 14,
+        title: "The Directory Den",
+        topic: "linux directories",
+        story: `Inside the <strong>Directory Den</strong>, folders nest within folders. The den-keeper teaches: <code>mkdir</code> creates a directory, and <code>rmdir</code> removes an empty one. To remove a directory with contents, you need <code>rm -r</code>.`,
+        art: `
+       🐻 mkdir new_folder
+       🐻 rmdir empty_folder
+       🐻 rm -r full_folder
+      ─────────────────
+         🌲 THE DEN`,
+        type: 'fill',
+        question: 'Type the command to create a new directory called <code>projects</code>:',
+        answer: ['mkdir projects'],
+        hint: 'mkdir = "make directory"',
+        learn: `<strong>mkdir projects</strong> creates a new, empty directory called "projects" in your current location. Use <code>mkdir -p a/b/c</code> to create nested directories all at once.`,
+        points: 10,
+      },
+      {
+        num: 15,
+        title: "The Viewing Vale",
+        topic: "linux file viewing",
+        story: `In the <strong>Viewing Vale</strong>, scrolls of text float by. The keeper shows you three ways to read them: <code>cat</code> dumps a whole file, <code>head</code> shows the first lines, and <code>tail</code> shows the last lines.`,
+        art: `
+      📜 cat file.txt    → whole file
+      📜 head file.txt   → first 10 lines
+      📜 tail file.txt   → last 10 lines
+      ──────────────────────
+           🏞️ THE VALE`,
+        type: 'mcq',
+        question: 'Which command shows only the LAST 10 lines of a file by default?',
+        options: ['cat', 'head', 'tail', 'less'],
+        correct: 2,
+        hint: 'Think of the "tail" end of something',
+        learn: `<strong>tail</strong> shows the last lines of a file (10 by default). <strong>head</strong> shows the first lines. Use <code>tail -f file.log</code> to "follow" a file live as new lines are appended — great for watching logs.`,
+        points: 15,
+      },
+      {
+        num: 16,
+        title: "The Permission Pass",
+        topic: "linux permissions",
+        story: `At the <strong>Permission Pass</strong>, a guard checks credentials with <code>chmod</code>. File permissions use three groups — owner, group, others — each with read (r=4), write (w=2), and execute (x=1) bits.`,
+        art: `
+      -rwxr-xr--  1 user group
+       owner|grp|others
+      chmod 754 file.sh
+      ─────────────────
+        🚧 PASS GUARD`,
+        type: 'mcq',
+        question: 'What does <code>chmod 755 script.sh</code> do?',
+        options: [
+          'Gives owner read/write/execute, and group + others read/execute',
+          'Deletes the file',
+          'Makes the file read-only for everyone',
+          'Gives everyone full read/write/execute access',
+        ],
+        correct: 0,
+        hint: '7 = rwx, 5 = r-x. Apply to owner, group, others in that order.',
+        learn: `<strong>chmod 755</strong> sets owner to <code>rwx</code> (7 = 4+2+1), and group/others to <code>r-x</code> (5 = 4+1, no write). This is the standard permission for an executable script that anyone can run but only the owner can edit.`,
+        points: 15,
+      },
+      {
+        num: 17,
+        title: "The Searching Swamp",
+        topic: "linux search & grep",
+        story: `The <strong>Searching Swamp</strong> is thick with files. A bog-hermit teaches you <code>grep</code> to search text inside files, and <code>find</code> to search for files by name across the filesystem.`,
+        art: `
+      🐸 grep "error" log.txt
+      🐸 find / -name "*.conf"
+      ──────────────────────
+         🌿 SWAMP HERMIT`,
+        type: 'fill',
+        question: 'Type the command to search for the word "TODO" inside a file called <code>notes.txt</code>:',
+        answer: ['grep "TODO" notes.txt', "grep 'TODO' notes.txt", 'grep TODO notes.txt'],
+        hint: 'grep "pattern" filename',
+        learn: `<strong>grep "TODO" notes.txt</strong> searches the file for lines containing "TODO" and prints them. Add <code>-i</code> for case-insensitive search, or <code>-r</code> to search recursively through a directory.`,
+        points: 15,
+      },
+      {
+        num: 18,
+        title: "The Process Plateau",
+        topic: "linux process management",
+        story: `On the windswept <strong>Process Plateau</strong>, programs run as numbered processes. <code>ps</code> lists running processes, <code>top</code> shows live resource usage, and <code>kill</code> stops a process by its PID.`,
+        art: `
+      PID  CMD
+      1024 firefox
+      2048 node server.js
+      ps aux | grep node
+      ──────────────────
+       ⛰️ PLATEAU`,
+        type: 'mcq',
+        question: 'Which command shows a live, auto-updating view of running processes and system resource usage?',
+        options: ['ps', 'top', 'ls', 'kill'],
+        correct: 1,
+        hint: 'It shows processes at the "top" of resource usage, refreshing live',
+        learn: `<strong>top</strong> gives a live, continuously updating dashboard of running processes, CPU, and memory usage. <strong>ps aux</strong> gives a one-time snapshot list instead. <strong>kill PID</strong> sends a signal to stop a process.`,
+        points: 15,
+      },
+      {
+        num: 19,
+        title: "The Ownership Outpost",
+        topic: "linux ownership",
+        story: `At the <strong>Ownership Outpost</strong>, every file belongs to someone. <code>chown</code> changes who owns a file, while <code>chmod</code> (which you learned earlier) changes what they can do with it.`,
+        art: `
+      -rw-r--r--  alice  staff  file.txt
+      chown bob file.txt
+      → -rw-r--r--  bob  staff  file.txt
+      ──────────────────────
+          🚩 OUTPOST`,
+        type: 'fill',
+        question: 'Type the command to change the owner of <code>data.csv</code> to a user named <code>bob</code>:',
+        answer: ['chown bob data.csv'],
+        hint: 'chown new_owner filename',
+        learn: `<strong>chown bob data.csv</strong> changes the owner of the file to "bob". You can also change the group at the same time with <code>chown bob:staff data.csv</code>. This usually requires sudo unless you already own the file.`,
+        points: 20,
+      },
+      {
+        num: 20,
+        title: "The Piping Pass",
+        topic: "linux pipes & combining commands",
+        story: `At the <strong>Piping Pass</strong>, commands link together like a chain of mountain bridges. You already know <code>|</code> sends output from one command into another — now combine it with sorting and counting.`,
+        art: `
+      cat access.log | sort | uniq -c | sort -rn
+           │      │      │        │
+         read   order  count   rank by count
+      ──────────────────────────────────
+           🌉 PIPING PASS`,
+        type: 'fill',
+        question: 'Complete the command to list all files in the current directory and count how many there are (one number as output):',
+        answer: ['ls | wc -l', 'ls -1 | wc -l'],
+        hint: 'ls lists, | pipes to wc -l which counts lines',
+        learn: `<strong>ls | wc -l</strong> pipes the file listing into <code>wc -l</code>, which counts the number of lines (i.e., the number of files/folders). <code>wc</code> stands for "word count" but <code>-l</code> makes it count lines instead.`,
+        points: 20,
+      },
+    {
+        num: 21,
+        title: "The Redirection Ridge",
+        topic: "linux redirection & streams",
+        story: `Along the <strong>Redirection Ridge</strong>, three streams flow: stdin (0), stdout (1), and stderr (2). A ridge-walker tests whether you can redirect errors away from regular output.`,
+        art: `
+      stdin  (0) →  command  → stdout (1)
+                        ↓
+                    stderr (2)
+      cmd 2> errors.log
+      ───────────────────
+          🏔️ RIDGE`,
+        type: 'fill',
+        question: 'Type the command to run <code>./build.sh</code> and send ONLY its error output (not normal output) to a file called <code>errors.log</code>:',
+        answer: ['./build.sh 2> errors.log', './build.sh 2>errors.log'],
+        hint: 'File descriptor 2 is stderr',
+        learn: `<strong>2></strong> redirects file descriptor 2 (stderr) to a file. Regular output (stdout, descriptor 1) still prints to the terminal. Use <code>2>&1</code> to merge stderr into stdout, or <code>> file 2>&1</code> to send both to the same file.`,
+        points: 25,
+      },
+      {
+        num: 22,
+        title: "The Disk Depths",
+        topic: "linux disk usage",
+        story: `Descending into the <strong>Disk Depths</strong>, you must measure space. <code>df</code> reports free space on mounted filesystems; <code>du</code> reports how much space specific files or folders use.`,
+        art: `
+      df -h     → disk free, human-readable
+      du -sh folder/  → size of one folder
+      ───────────────────────
+          🕳️ DEPTHS`,
+        type: 'mcq',
+        question: 'Which command shows how much disk space a specific folder is using, in human-readable form (like "2.3G")?',
+        options: ['df -h', 'du -sh folder/', 'ls -lh folder/', 'free -h'],
+        correct: 1,
+        hint: '"du" = disk usage, -s summarizes, -h is human-readable',
+        learn: `<strong>du -sh folder/</strong> shows total disk usage of "folder" in human-readable units. <strong>df -h</strong> instead reports overall free/used space on entire mounted drives, not a single folder.`,
+        points: 25,
+      },
+      {
+        num: 23,
+        title: "The Symlink Spire",
+        topic: "linux symbolic links",
+        story: `Atop the <strong>Symlink Spire</strong>, illusions point to other places. A symbolic link is a pointer file referencing another file or directory, made with <code>ln -s</code>.`,
+        art: `
+      ln -s /opt/app/config.yml ~/config.yml
+      ~/config.yml  →  /opt/app/config.yml
+      (a shortcut, not a copy)
+      ────────────────────────
+           🗼 SPIRE`,
+        type: 'fill',
+        question: 'Type the command to create a symbolic link named <code>latest</code> that points to the directory <code>/var/releases/v3</code>:',
+        answer: ['ln -s /var/releases/v3 latest'],
+        hint: 'ln -s target link_name',
+        learn: `<strong>ln -s target link_name</strong> creates a symbolic link. Unlike a copy, a symlink is just a pointer — editing through it changes the original file, and deleting the symlink doesn't touch the target.`,
+        points: 25,
+      },
+      {
+        num: 24,
+        title: "The Archive Abbey",
+        topic: "linux archiving & compression",
+        story: `Monks at the <strong>Archive Abbey</strong> preserve files for centuries using <code>tar</code>. The flags <code>-c</code> (create), <code>-x</code> (extract), <code>-z</code> (gzip compress), <code>-v</code> (verbose), and <code>-f</code> (filename) combine to build the right incantation.`,
+        art: `
+      tar -czvf archive.tar.gz folder/
+       c=create z=gzip v=verbose f=file
+      tar -xzvf archive.tar.gz
+      ────────────────────────
+           ⛪ ABBEY`,
+        type: 'fill',
+        question: 'Type the command to compress a folder called <code>project</code> into a gzipped tar archive named <code>project.tar.gz</code>:',
+        answer: ['tar -czvf project.tar.gz project', 'tar czvf project.tar.gz project', 'tar -cvzf project.tar.gz project'],
+        hint: 'tar -czvf output.tar.gz source_folder',
+        learn: `<strong>tar -czvf project.tar.gz project</strong> — <code>c</code> creates an archive, <code>z</code> compresses with gzip, <code>v</code> prints progress (verbose), and <code>f</code> specifies the output filename. To extract: <code>tar -xzvf project.tar.gz</code>.`,
+        points: 25,
+      },
+      {
+        num: 25,
+        title: "The Network Narrows",
+        topic: "linux networking basics",
+        story: `Squeezing through the <strong>Network Narrows</strong>, you test connectivity. <code>ping</code> checks if a host is reachable, <code>curl</code> fetches data from a URL, and <code>ssh</code> opens a secure remote shell.`,
+        art: `
+      ping google.com
+      curl https://api.example.com
+      ssh user@192.168.1.10
+      ─────────────────────────
+          🌐 NARROWS`,
+        type: 'mcq',
+        question: 'Which command would you use to securely log into a remote server\'s shell from your terminal?',
+        options: ['curl', 'ping', 'ssh', 'wget'],
+        correct: 2,
+        hint: '"Secure SHell" is literally in the name',
+        learn: `<strong>ssh user@host</strong> opens a secure encrypted shell session on a remote machine. <strong>curl</strong> and <strong>wget</strong> fetch data over HTTP(S); <strong>ping</strong> just checks if a host responds, it doesn't log you in.`,
+        points: 25,
+      },
+      {
+        num: 26,
+        title: "The Sed Sanctum",
+        topic: "bash text processing (sed/awk)",
+        story: `Inside the <strong>Sed Sanctum</strong>, text transforms instantly. <code>sed</code> performs find-and-replace on text streams using the pattern <code>s/old/new/g</code>, where <code>g</code> means replace all occurrences on each line.`,
+        art: `
+      echo "cat hat" | sed 's/cat/dog/'
+      → dog hat
+      sed 's/foo/bar/g' file.txt
+      ─────────────────────────
+          🕯️ SANCTUM`,
+        type: 'fill',
+        question: 'Type the sed command to replace every occurrence of "http" with "https" in a file called <code>links.txt</code>, printing the result to the terminal:',
+        answer: ["sed 's/http/https/g' links.txt", 'sed "s/http/https/g" links.txt'],
+        hint: 'sed \'s/old/new/g\' filename — the g means "all occurrences"',
+        learn: `<strong>sed 's/http/https/g' links.txt</strong> replaces every "http" with "https" on every line. Without <code>g</code>, sed only replaces the first match per line. Add <code>-i</code> (e.g. <code>sed -i 's/.../.../g' file</code>) to edit the file in place instead of just printing the result.`,
+        points: 30,
+      },
+      {
+        num: 27,
+        title: "The Cron Citadel",
+        topic: "linux scheduling",
+        story: `Deep in the <strong>Cron Citadel</strong>, time itself is scripted. <code>cron</code> runs scheduled jobs using five time fields: minute, hour, day-of-month, month, day-of-week.`,
+        art: `
+      * * * * *  command
+      │ │ │ │ │
+      │ │ │ │ └─ day of week (0-6)
+      │ │ │ └─── month (1-12)
+      │ │ └───── day of month (1-31)
+      │ └─────── hour (0-23)
+      └───────── minute (0-59)
+      ───────────────────────
+          🏰 CITADEL`,
+        type: 'mcq',
+        question: 'Which crontab line runs a script every day at 2:30 AM?',
+        options: [
+          '30 2 * * * /scripts/backup.sh',
+          '2 30 * * * /scripts/backup.sh',
+          '* * 2 30 * /scripts/backup.sh',
+          '02:30 * * * * /scripts/backup.sh',
+        ],
+        correct: 0,
+        hint: 'Field order is: minute hour day month weekday',
+        learn: `<strong>30 2 * * *</strong> means minute=30, hour=2, every day/month/weekday — i.e. 2:30 AM daily. The five <code>*</code>-separated fields are always in this order: minute, hour, day-of-month, month, day-of-week.`,
+        points: 30,
+      },
+      {
+        num: 28,
+        title: "The Variable Vault",
+        topic: "advanced bash arrays & loops",
+        story: `In the <strong>Variable Vault</strong>, treasure is stored in arrays. You recall arrays from earlier — now combine them with a loop to process every item.`,
+        art: `
+      servers=(web1 web2 db1)
+      for s in "\${servers[@]}"; do
+        echo "Pinging \$s"
+      done
+      ────────────────────
+          🗝️ VAULT`,
+        type: 'fill-inline',
+        prefix: 'servers=(web1 web2 db1)\nfor s in ',
+        blank: '__________',
+        suffix: '; do\n  echo "Pinging $s"\ndone',
+        question: 'Fill in the blank to correctly loop over every element in the <code>servers</code> array:',
+        answer: ['"${servers[@]}"', '${servers[@]}'],
+        hint: 'Use ${array[@]} to expand all elements, quoted to be safe',
+        learn: `<strong>"\${servers[@]}"</strong> expands to all elements of the array, each as a separate word — this is the standard, safe way to loop over an array in bash, especially when values might contain spaces.`,
+        points: 30,
+      },
+      {
+        num: 29,
+        title: "The Inode Inferno",
+        topic: "advanced linux find & xargs",
+        story: `The <strong>Inode Inferno</strong> burns with thousands of files. To act on many files at once, combine <code>find</code> with <code>xargs</code> or <code>find -exec</code>.`,
+        art: `
+      find . -name "*.log" -mtime +7 -delete
+      find . -name "*.tmp" | xargs rm
+      ──────────────────────────────
+           🔥 INFERNO`,
+        type: 'fill',
+        question: 'Type the <code>find</code> command to delete all files ending in <code>.tmp</code> in the current directory and its subfolders:',
+        answer: ['find . -name "*.tmp" -delete', "find . -name '*.tmp' -delete"],
+        hint: 'find . -name "pattern" -delete',
+        learn: `<strong>find . -name "*.tmp" -delete</strong> searches recursively from the current directory (<code>.</code>) for files matching <code>*.tmp</code> and deletes them directly. This is safer and faster than piping to <code>xargs rm</code> for simple deletions, since <code>-delete</code> is a built-in find action.`,
+        points: 30,
+      },
+      {
+        num: 30,
+        title: "🏰 The Castle — Capture the Flag!",
+        topic: "full bash script + linux commands",
+        story: `You stand before the <strong>Castle Gates</strong> at last. The flag is inside! The final guardian combines everything you've learned — Linux commands AND bash scripting — into one last challenge. Complete it to capture the flag! 🚩`,
+        art: `
+        /\\      /\\
+       /  \\    /  \\
+      / /\\ \\  / /\\ \\
+     / /  \\ \\/ /  \\ \\
+    |______|__|______|
+    |  🚩 THE FLAG 🚩 |
+    |  LINUX  CASTLE   |
+    |_________________|`,
+        type: 'fill',
+        question: 'Complete this script. Fill in the missing line that counts how many <code>.log</code> files exist in <code>/var/log</code> and saves the count to <code>count.txt</code>:',
+        prefix: `#!/bin/bash\nLOG_DIR="/var/log"\n\n`,
+        suffix: `\n\necho "Log file count saved."`,
+        answer: [
+          'find "$LOG_DIR" -name "*.log" | wc -l > count.txt',
+          'ls "$LOG_DIR"/*.log | wc -l > count.txt',
+          'find $LOG_DIR -name "*.log" | wc -l > count.txt',
+        ],
+        hint: 'find searches for files, wc -l counts lines, > saves to a file',
+        learn: `<strong>find "$LOG_DIR" -name "*.log" | wc -l > count.txt</strong> — finds every <code>.log</code> file under the directory, pipes the list into <code>wc -l</code> to count them, and redirects that count into <code>count.txt</code>. This combines file searching, piping, counting, and redirection — the core toolkit of practical Linux scripting.`,
+        points: 35,
+      },
+    ];
+
+    /* ============================================================
+       GAME STATE
+       ============================================================ */
+    let state = {
+      level: 0,
+      score: 0,
+      lives: 3,
+      answered: false,
+      levelStatus: Array(30).fill('locked'), // 'locked' | 'current' | 'done'
+    };
+
+    /* ============================================================
+       DOM REFS
+       ============================================================ */
+    const hudLevel      = document.getElementById('hudLevel');
+    const hudScore      = document.getElementById('hudScore');
+    const livesDisplay  = document.getElementById('livesDisplay');
+    const progressFill  = document.getElementById('progressFill');
+    const levelMap      = document.getElementById('levelMap');
+    const scenePanel    = document.getElementById('scenePanel');
+    const sceneArt      = document.getElementById('sceneArt');
+    const asciiArt      = document.getElementById('asciiArt');
+    const levelBadge    = document.getElementById('levelBadge');
+    const levelNum      = document.getElementById('levelNum');
+    const levelTitle    = document.getElementById('levelTitle');
+    const storyText     = document.getElementById('storyText');
+    const challengeQ    = document.getElementById('challengeQ');
+    const challengeInput= document.getElementById('challengeInput');
+    const hintBtn       = document.getElementById('hintBtn');
+    const hintText      = document.getElementById('hintText');
+    const feedbackBox   = document.getElementById('feedbackBox');
+    const learnTip      = document.getElementById('learnTip');
+    const nextBtn       = document.getElementById('nextBtn');
+    const skipBtn       = document.getElementById('skipBtn');
+    const winScreen     = document.getElementById('winScreen');
+    const gameoverScreen= document.getElementById('gameoverScreen');
+    const finalScore    = document.getElementById('finalScore');
+    const gameoverScore = document.getElementById('gameoverScore');
+    const sidebarLevelList = document.getElementById('sidebarLevelList');
+    const syncStatus     = document.getElementById('syncStatus');
+    const profileIconLink = document.getElementById('profileIconLink');
+    const profileIconDot  = document.getElementById('profileIconDot');
+    const nudgeBackdrop  = document.getElementById('nudgeBackdrop');
+    const nudgeCloseBtn  = document.getElementById('nudgeCloseBtn');
+    const nudgeDismissBtn = document.getElementById('nudgeDismissBtn');
+
+    /* ============================================================
+       INIT
+       ============================================================ */
+    function init(skipSave) {
+      state.level = 0;
+      state.score = 0;
+      state.lives = 3;
+      state.levelStatus = Array(30).fill('locked');
+      state.levelStatus[0] = 'current';
+      winScreen.classList.remove('show');
+      gameoverScreen.classList.remove('show');
+      scenePanel.style.display = '';
+      renderLevel();
+      if (!skipSave) persistProgress();
+    }
+
+    /* ============================================================
+       PERSISTENCE — saves to Supabase if logged in,
+       otherwise to localStorage as a guest.
+       ============================================================ */
+    let currentUser = null;     // cached Supabase user, or null = guest
+    const GUEST_KEY = 'bashQuestGuestProgress';
+
+    function snapshotState() {
+      return {
+        level: state.level,
+        score: state.score,
+        lives: state.lives,
+        levelStatus: state.levelStatus,
+      };
+    }
+
+    function updateProfileIcon() {
+      if (currentUser) {
+        profileIconLink.classList.add('logged-in');
+        profileIconDot.classList.add('logged-in');
+        profileIconLink.title = 'Signed in as ' + currentUser.email;
+      } else {
+        profileIconLink.classList.remove('logged-in');
+        profileIconDot.classList.remove('logged-in');
+        profileIconLink.title = 'Guest — click to sign in';
+      }
+    }
+
+    /* ============================================================
+       SIGNUP NUDGE — shown once to guests when they reach level 5
+       ============================================================ */
+    const NUDGE_SEEN_KEY = 'bashQuestNudgeSeen';
+
+    function maybeShowSignupNudge() {
+      if (currentUser) return;               // already signed in, no need
+      if (state.level < 4) return;            // level index 4 = Level 5
+      let seen = false;
+      try { seen = localStorage.getItem(NUDGE_SEEN_KEY) === '1'; } catch (e) { /* ignore */ }
+      if (seen) return;
+      nudgeBackdrop.classList.add('show');
+    }
+
+    function dismissSignupNudge() {
+      nudgeBackdrop.classList.remove('show');
+      try { localStorage.setItem(NUDGE_SEEN_KEY, '1'); } catch (e) { /* ignore */ }
+    }
+
+    nudgeCloseBtn.addEventListener('click', dismissSignupNudge);
+    nudgeDismissBtn.addEventListener('click', dismissSignupNudge);
+    nudgeBackdrop.addEventListener('click', (e) => {
+      if (e.target === nudgeBackdrop) dismissSignupNudge();
+    });
+
+    async function persistProgress() {
+      const snap = snapshotState();
+      if (currentUser) {
+        await Auth.saveProgress(snap);
+        syncStatus.textContent = '✓ synced — ' + currentUser.email;
+      } else {
+        try { localStorage.setItem(GUEST_KEY, JSON.stringify(snap)); } catch (e) { /* storage unavailable */ }
+        syncStatus.textContent = 'guest mode — progress saved locally';
+      }
+    }
+
+    function applySnapshot(snap) {
+      if (!snap) return false;
+      state.level = snap.level || 0;
+      state.score = snap.score || 0;
+      state.lives = (typeof snap.lives === 'number') ? snap.lives : 3;
+      state.levelStatus = snap.levelStatus || Array(30).fill('locked');
+      if (!state.levelStatus[state.level]) state.levelStatus[state.level] = 'current';
+      return true;
+    }
+
+    async function startGame() {
+      currentUser = await Auth.getUser();
+      updateProfileIcon();
+
+      if (currentUser) {
+        const { data } = await Auth.loadProgress();
+        if (data && applySnapshot(data)) {
+          syncStatus.textContent = '✓ synced — ' + currentUser.email;
+          if (state.lives <= 0) { init(true); return; }
+          winScreen.classList.remove('show');
+          gameoverScreen.classList.remove('show');
+          scenePanel.style.display = '';
+          renderLevel();
+          return;
+        }
+        syncStatus.textContent = '✓ synced — ' + currentUser.email;
+        init(true);
+        return;
+      }
+
+      // Guest: try localStorage
+      try {
+        const raw = localStorage.getItem(GUEST_KEY);
+        if (raw) {
+          const snap = JSON.parse(raw);
+          if (applySnapshot(snap)) {
+            syncStatus.textContent = 'guest mode — progress saved locally';
+            if (state.lives <= 0) { init(true); return; }
+            winScreen.classList.remove('show');
+            gameoverScreen.classList.remove('show');
+            scenePanel.style.display = '';
+            renderLevel();
+            return;
+          }
+        }
+      } catch (e) { /* ignore corrupt storage */ }
+
+      syncStatus.textContent = 'guest mode — progress saved locally';
+      init(true);
+    }
+
+    /* ============================================================
+       RENDER LEVEL
+       ============================================================ */
+    function renderLevel() {
+      const L = LEVELS[state.level];
+      state.answered = false;
+
+      // HUD
+      hudLevel.textContent = `${state.level+1}/30`;
+      hudScore.textContent = state.score;
+      progressFill.style.width = `${(state.level / 30) * 100}%`;
+      renderLives();
+      renderMap();
+      renderSidebarLevels();
+      maybeShowSignupNudge();
+
+      // Scene
+      levelBadge.textContent = `Level ${state.level+1}`;
+      asciiArt.textContent = L.art;
+      levelNum.textContent = `#${String(state.level+1).padStart(2,'0')}`;
+      levelTitle.textContent = L.title;
+      storyText.innerHTML = L.story;
+      challengeQ.innerHTML = L.question.replace(/\n/g, '<br/>');
+
+      // Reset feedback
+      feedbackBox.className = 'feedback-box';
+      feedbackBox.textContent = '';
+      learnTip.style.display = 'none';
+      nextBtn.classList.remove('show');
+      hintText.classList.remove('visible');
+      hintText.textContent = '';
+      skipBtn.disabled = false;
+
+      // Build input
+      buildInput(L);
+
+      // Hint
+      hintBtn.onclick = () => {
+        hintText.textContent = '💡 ' + L.hint;
+        hintText.classList.add('visible');
+        state.score = Math.max(0, state.score - 2);
+        hudScore.textContent = state.score;
+      };
+    }
+
+    /* ---- build challenge input ---- */
+    function buildInput(L) {
+      challengeInput.innerHTML = '';
+
+      if (L.type === 'mcq') {
+        const opts = document.createElement('div');
+        opts.className = 'mcq-options';
+        L.options.forEach((opt, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'mcq-btn';
+          btn.innerHTML = `<span class="mcq-key">${String.fromCharCode(65+i)}</span>${opt.replace(/\n/g,'<br/>')}`;
+          btn.addEventListener('click', () => handleMCQ(i, L));
+          opts.appendChild(btn);
+        });
+        challengeInput.appendChild(opts);
+
+      } else if (L.type === 'fill' || L.type === 'fill-inline') {
+        if (L.type === 'fill-inline') {
+          const codeWrap = document.createElement('div');
+          codeWrap.className = 'code-fill-wrap';
+          codeWrap.innerHTML = `<span style="color:var(--text-dim)">${L.prefix.replace(/\n/g,'<br/>')}</span><span class="fill-blank" id="fillPreview">______</span><span style="color:var(--text-dim)">${L.suffix.replace(/\n/g,'<br/>')}</span>`;
+          challengeInput.appendChild(codeWrap);
+        }
+        const row = document.createElement('div');
+        row.className = 'answer-row';
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'answer-input';
+        inp.placeholder = 'type your answer here...';
+        inp.setAttribute('autocomplete','off');
+        inp.setAttribute('spellcheck','false');
+        if (L.type === 'fill-inline') {
+          inp.addEventListener('input', () => {
+            const fp = document.getElementById('fillPreview');
+            if(fp) fp.textContent = inp.value || '______';
+          });
+        }
+        const sub = document.createElement('button');
+        sub.className = 'submit-btn';
+        sub.textContent = 'Submit';
+        sub.addEventListener('click', () => handleFill(inp.value, L, inp, sub));
+        inp.addEventListener('keydown', e => { if(e.key==='Enter') sub.click(); });
+        row.appendChild(inp);
+        row.appendChild(sub);
+        challengeInput.appendChild(row);
+      }
+    }
+
+    /* ---- MCQ handler ---- */
+    function handleMCQ(chosen, L) {
+      if (state.answered) return;
+      state.answered = true;
+      const btns = challengeInput.querySelectorAll('.mcq-btn');
+      btns.forEach(b => b.disabled = true);
+      if (chosen === L.correct) {
+        btns[chosen].classList.add('correct');
+        showSuccess(L);
+      } else {
+        btns[chosen].classList.add('wrong');
+        btns[L.correct].classList.add('correct');
+        showFailure(L);
+      }
+    }
+
+    /* ---- Fill handler ---- */
+    function handleFill(val, L, inp, sub) {
+      if (state.answered) return;
+      const trimmed = val.trim();
+      if (!trimmed) return;
+      const correct = L.answer.some(a => a.trim() === trimmed);
+      // fuzzy: allow partial match for multi-line fill
+      const fuzzy = !correct && L.answer.some(a => trimmed && a.trim().includes(trimmed));
+      state.answered = true;
+      inp.disabled = true;
+      sub.disabled = true;
+      if (correct || fuzzy) {
+        inp.style.borderColor = 'var(--green)';
+        showSuccess(L);
+      } else {
+        inp.classList.add('shake');
+        inp.style.borderColor = 'var(--red)';
+        setTimeout(() => inp.classList.remove('shake'), 400);
+        showFailure(L);
+      }
+    }
+
+    /* ---- success / failure ---- */
+    function showSuccess(L) {
+      state.score += L.points;
+      hudScore.textContent = state.score;
+      feedbackBox.className = 'feedback-box success show';
+      feedbackBox.innerHTML = `✅ Correct! +${L.points} pts`;
+      showLearnTip(L);
+      nextBtn.classList.add('show');
+      skipBtn.disabled = true;
+      if (state.level < 30) state.levelStatus[state.level] = 'done';
+      persistProgress();
+    }
+
+    function showFailure(L) {
+      state.lives--;
+      renderLives();
+      feedbackBox.className = 'feedback-box failure show';
+      feedbackBox.innerHTML = `❌ Not quite. The correct answer was:<br/><code style="color:var(--green)">${L.answer[0]}</code>`;
+      showLearnTip(L);
+      nextBtn.classList.add('show');
+      // Allow skip button to remain enabled - user can skip after failure
+      // skipBtn.disabled = true;
+      persistProgress();
+      if (state.lives <= 0) {
+        setTimeout(gameOver, 1200);
+      }
+    }
+
+    function showLearnTip(L) {
+      learnTip.style.display = 'block';
+      learnTip.innerHTML = `<strong>📖 Learn:</strong> ${L.learn}`;
+    }
+
+    /* ---- next level ---- */
+    nextBtn.addEventListener('click', () => {
+      state.level++;
+      if (state.level >= LEVELS.length) {
+        winGame(); return;
+      }
+      state.levelStatus[state.level] = 'current';
+      renderLevel();
+      persistProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    /* ---- skip ---- */
+    skipBtn.addEventListener('click', () => {
+      if (skipBtn.disabled) return;
+      state.score = Math.max(0, state.score - 5);
+      hudScore.textContent = state.score;
+      state.answered = true;
+      const L = LEVELS[state.level];
+      feedbackBox.className = 'feedback-box failure show';
+      feedbackBox.innerHTML = `⏭️ Skipped. Answer: <code style="color:var(--green)">${L.answer ? L.answer[0] : L.options[L.correct]}</code>`;
+      showLearnTip(L);
+      nextBtn.classList.add('show');
+      skipBtn.disabled = true;
+      challengeInput.querySelectorAll('button,input').forEach(el => el.disabled = true);
+      persistProgress();
+    });
+
+    /* ---- win ---- */
+    function winGame() {
+      scenePanel.style.display = 'none';
+      progressFill.style.width = '100%';
+      winScreen.classList.add('show');
+      finalScore.textContent = state.score;
+      renderMap();
+      persistProgress();
+    }
+
+    /* ---- game over ---- */
+    function gameOver() {
+      scenePanel.style.display = 'none';
+      gameoverScreen.classList.add('show');
+      gameoverScore.textContent = state.score;
+      persistProgress();
+    }
+
+    /* ---- render lives ---- */
+    function renderLives() {
+      livesDisplay.innerHTML = '';
+      for (let i = 0; i < 3; i++) {
+        const h = document.createElement('span');
+        h.className = 'life-heart' + (i >= state.lives ? ' lost' : '');
+        h.textContent = '❤️';
+        livesDisplay.appendChild(h);
+      }
+    }
+
+    /* ---- render level map ---- */
+    function renderMap() {
+      levelMap.innerHTML = '';
+      LEVELS.forEach((L, i) => {
+        const dot = document.createElement('div');
+        const status = state.levelStatus[i] || 'locked';
+        dot.className = `level-dot ${status}`;
+        dot.textContent = status === 'done' ? '✓' : String(i+1);
+        dot.title = L.title;
+        levelMap.appendChild(dot);
+        if (i < LEVELS.length - 1) {
+          const conn = document.createElement('div');
+          conn.className = `level-connector${status === 'done' ? ' done' : ''}`;
+          levelMap.appendChild(conn);
+        }
+      });
+    }
+
+    /* ---- sidebar level list ---- */
+    function renderSidebarLevels() {
+      sidebarLevelList.innerHTML = '';
+      LEVELS.forEach((L, i) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.className = 'nav-link cmd-index-link' + (i === state.level ? ' active-cmd' : '');
+        const status = state.levelStatus[i];
+        const icon = status === 'done' ? '✓ ' : status === 'current' ? '▶ ' : '· ';
+        a.textContent = icon + L.title;
+        a.href = '#';
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          if (status !== 'locked') {
+            state.level = i;
+            state.answered = false;
+            scenePanel.style.display = '';
+            winScreen.classList.remove('show');
+            gameoverScreen.classList.remove('show');
+            renderLevel();
+          }
+        });
+        li.appendChild(a);
+        sidebarLevelList.appendChild(li);
+      });
+    }
+
+    /* ---- restart ---- */
+    document.getElementById('restartBtn').addEventListener('click', () => init(false));
+    document.getElementById('restartBtn2').addEventListener('click', () => init(false));
+
+    /* ---- mobile sidebar ---- */
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+    menuToggle.addEventListener('click', () => { sidebar.classList.toggle('open'); backdrop.classList.toggle('visible'); });
+    backdrop.addEventListener('click', () => { sidebar.classList.remove('open'); backdrop.classList.remove('visible'); });
+
+    /* ---- start ---- */
+    Auth.logVisit('game.html');
+    startGame();
+  })();
+  </script>
+</body>
+</html>

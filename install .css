@@ -1,0 +1,232 @@
+/* install.css — shared by install.html */
+
+.install-section { margin-bottom: 3.5rem; }
+
+/* Prose card */
+.prose-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+.prose-card strong { color: var(--text); }
+
+/* Callouts */
+.callout {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin-top: 0.5rem;
+}
+.callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+.callout-green  { background: rgba(0,230,118,0.06); border: 1px solid rgba(0,230,118,0.2); color: #9de8c0; }
+.callout-cyan   { background: rgba(79,195,247,0.06); border: 1px solid rgba(79,195,247,0.2); color: #a8d8f0; }
+.callout-amber  { background: rgba(255,203,107,0.06); border: 1px solid rgba(255,203,107,0.2); color: #e8cfa0; }
+.callout strong { color: inherit; font-weight: 700; }
+
+/* Distro grid */
+.distro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.distro-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  position: relative;
+  transition: border-color 0.15s;
+}
+.distro-card:hover { border-color: var(--border-hi); }
+.distro-card.recommended { border-color: rgba(0,230,118,0.3); }
+
+.distro-badge {
+  position: absolute;
+  top: -10px; left: 1rem;
+  background: var(--green);
+  color: #000;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+}
+
+.distro-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.distro-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.ubuntu-icon { background: #e95420; color: #fff; }
+.mint-icon   { background: #87cf3e; color: #fff; }
+.kali-icon   { background: #367bf0; color: #fff; }
+.arch-icon   { background: #1793d1; color: #fff; }
+
+.distro-name    { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; color: var(--text-hi); }
+.distro-version { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim); }
+.distro-desc    { font-size: 0.83rem; color: var(--text-dim); line-height: 1.6; flex: 1; }
+
+.distro-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.dtag {
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  color: var(--cyan);
+  background: rgba(79,195,247,0.08);
+  border: 1px solid rgba(79,195,247,0.18);
+  border-radius: 20px;
+  padding: 0.1rem 0.5rem;
+}
+
+.distro-link {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--green);
+  text-decoration: none;
+  margin-top: auto;
+}
+.distro-link:hover { text-decoration: underline; }
+
+/* Steps */
+.steps-wrap { display: flex; flex-direction: column; gap: 1rem; }
+
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.3rem 1.4rem;
+  display: flex;
+  gap: 1.2rem;
+  align-items: flex-start;
+}
+
+.step-num {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--green);
+  opacity: 0.35;
+  flex-shrink: 0;
+  line-height: 1;
+  min-width: 2.2rem;
+}
+
+.step-body { flex: 1; display: flex; flex-direction: column; gap: 0.65rem; }
+
+.step-title {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-hi);
+}
+
+.step-body p { font-size: 0.87rem; color: var(--text-dim); line-height: 1.65; }
+.step-body p a, .step-body a { color: var(--cyan); }
+.step-body p strong { color: var(--text); }
+
+.numbered-list {
+  font-size: 0.87rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+  padding-left: 1.4rem;
+}
+.numbered-list li { margin-bottom: 0.2rem; }
+.numbered-list strong { color: var(--text); }
+
+.bullet-list {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+  padding-left: 1.2rem;
+  list-style: disc;
+}
+.bullet-list code { color: var(--cyan); font-family: var(--font-mono); font-size: 0.82rem; }
+.bullet-list strong { color: var(--text); }
+
+/* Code blocks */
+.code-block {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  position: relative;
+}
+.code-block.terminal-style { border-left-color: var(--cyan); }
+
+.code-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.code-block pre {
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.83rem;
+  color: var(--cyan);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.code-block pre code { color: inherit; font-family: inherit; font-size: inherit; }
+.code-input { color: var(--green); }
+
+.copy-snippet {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.22rem 0.6rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all 0.12s;
+}
+.copy-snippet:hover { color: var(--green); border-color: var(--green); }
+.copy-snippet.copied { color: var(--green); }
+
+kbd {
+  background: var(--bg-hover);
+  border: 1px solid var(--border-hi);
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--text);
+}
+
+@media (max-width: 600px) {
+  .step-card { flex-direction: column; gap: 0.5rem; }
+  .step-num { font-size: 1.1rem; }
+  .distro-grid { grid-template-columns: 1fr; }
+}

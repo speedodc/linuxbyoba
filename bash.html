@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bash Scripting for Beginners — linuxbyOBA</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .lesson-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .lesson-title {
+      font-family: var(--font-mono);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 0.5rem;
+    }
+
+    .lesson-intro {
+      font-size: 0.95rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    .step {
+      background: var(--bg);
+      border-left: 3px solid var(--cyan);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: var(--radius);
+    }
+
+    .step-num {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--cyan);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .step-content {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .code-example {
+      background: #080b0f;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin: 0.75rem 0;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--cyan);
+      line-height: 1.6;
+    }
+
+    .code-example code {
+      color: inherit;
+    }
+
+    .output-box {
+      background: rgba(0,230,118,0.05);
+      border: 1px solid rgba(0,230,118,0.2);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin: 0.75rem 0;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--green);
+      line-height: 1.6;
+    }
+
+    .output-label {
+      font-size: 0.7rem;
+      color: var(--green);
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .copy-btn {
+      background: var(--border);
+      border: 1px solid var(--border-hi);
+      color: var(--text-dim);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .copy-btn:hover {
+      background: var(--cyan);
+      color: var(--bg);
+      border-color: var(--cyan);
+    }
+
+    .warning-box {
+      background: rgba(255,203,107,0.08);
+      border: 1px solid rgba(255,203,107,0.2);
+      border-left: 3px solid var(--amber);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: var(--radius);
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .warning-label {
+      font-weight: 700;
+      color: var(--amber);
+      margin-bottom: 0.3rem;
+    }
+
+    .exercise-box {
+      background: rgba(79,195,247,0.08);
+      border: 1px solid rgba(79,195,247,0.2);
+      border-left: 3px solid var(--cyan);
+      padding: 1.2rem;
+      margin: 1.5rem 0;
+      border-radius: var(--radius);
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .exercise-title {
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .exercise-title::before {
+      content: "✏️";
+      font-size: 1.1rem;
+    }
+
+    .solution-toggle {
+      background: var(--border);
+      border: 1px solid var(--border-hi);
+      color: var(--cyan);
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      margin-top: 1rem;
+      transition: all 0.2s;
+    }
+
+    .solution-toggle:hover {
+      background: rgba(79,195,247,0.1);
+      border-color: var(--cyan);
+    }
+
+    .solution {
+      display: none;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .solution.show {
+      display: block;
+    }
+
+    .key-concept {
+      background: var(--bg-card);
+      border: 1px solid rgba(0,230,118,0.2);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-left: 3px solid var(--green);
+    }
+
+    .key-concept strong {
+      color: var(--green);
+    }
+
+    .video-placeholder {
+      background: var(--bg);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 3rem;
+      text-align: center;
+      color: var(--text-dim);
+      margin: 1.5rem 0;
+    }
+
+    .video-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .breadcrumb {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .breadcrumb a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .lesson-card {
+        padding: 1rem;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-bracket">[</span>linux<span class="logo-accent">byOBA</span><span class="logo-bracket">]</span>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Bash lessons">
+      <div class="nav-section">
+        <span class="nav-label">// pages</span>
+        <ul>
+          <li><a href="index.html"   class="nav-link"><span class="nav-bullet">▸</span> Commands</a></li>
+          <li><a href="bash-beginner.html" class="nav-link active-page"><span class="nav-bullet">▸</span> Bash for Beginners</a></li>
+          <li><a href="bash.html"    class="nav-link"><span class="nav-bullet">▸</span> Bash Advanced</a></li>
+          <li><a href="install.html" class="nav-link"><span class="nav-bullet">▸</span> Install Linux</a></li>
+          <li><a href="game.html"    class="nav-link"><span class="nav-bullet">▸</span> 🎮 Bash Quest</a></li>
+          <li><a href="account.html" class="nav-link"><span class="nav-bullet">▸</span> 👤 Account</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">// lessons</span>
+        <ul>
+          <li><a href="#lesson-1" class="nav-link" data-section="lesson-1"><span class="nav-bullet">▸</span> Lesson 1: Create Your First Script</a></li>
+          <li><a href="#lesson-2" class="nav-link" data-section="lesson-2"><span class="nav-bullet">▸</span> Lesson 2: Variables</a></li>
+          <li><a href="#lesson-3" class="nav-link" data-section="lesson-3"><span class="nav-bullet">▸</span> Lesson 3: User Input</a></li>
+          <li><a href="#lesson-4" class="nav-link" data-section="lesson-4"><span class="nav-bullet">▸</span> Lesson 4: Making Decisions</a></li>
+          <li><a href="#lesson-5" class="nav-link" data-section="lesson-5"><span class="nav-bullet">▸</span> Lesson 5: Loops</a></li>
+          <li><a href="#lesson-6" class="nav-link" data-section="lesson-6"><span class="nav-bullet">▸</span> Lesson 6: Your First Real Script</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer"><span>made for coursemates</span></div>
+  </aside>
+
+  <!-- Mobile header -->
+  <header class="mobile-header">
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">&#9776;</button>
+    <span class="mobile-title">[bash for beginners]</span>
+  </header>
+
+  <!-- Main content -->
+  <main class="content" id="content">
+    <div class="content-inner">
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-tag">// learning path</div>
+        <h1 class="hero-title">Bash for<br /><span class="hero-accent">Beginners</span></h1>
+        <p class="hero-desc">Start from zero. Learn bash scripting step-by-step with hands-on examples. Perfect for complete beginners — no prior experience needed.</p>
+        <div class="hero-status">
+          <span class="status-dot"></span>
+          <span>6 lessons • 30 minutes • 100% beginner-friendly</span>
+        </div>
+      </section>
+
+      <!-- LESSON 1 -->
+      <section class="lesson-card" id="lesson-1">
+        <h2 class="lesson-title">Lesson 1: Create Your First Script</h2>
+        
+        <p class="lesson-intro">
+          Let's create your very first bash script! A bash script is just a text file with commands that the computer will run one after another.
+        </p>
+
+        <div class="step">
+          <div class="step-num">Step 1: Create a new file</div>
+          <div class="step-content">
+            Open your terminal and type:
+            <div class="code-example">nano hello.sh</div>
+            This creates a new file called <code>hello.sh</code> (the .sh means "shell script")
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">Step 2: Type this code</div>
+          <div class="step-content">
+            Copy and paste this exact code into the editor:
+            <div class="code-example">#!/bin/bash
+echo "Hello, World!"</div>
+          </div>
+        </div>
+
+        <div class="key-concept">
+          <strong>What does each line mean?</strong><br/>
+          • <code>#!/bin/bash</code> — This tells your computer to use bash to run this script. Always put this on line 1!<br/>
+          • <code>echo</code> — This prints text to the screen<br/>
+          • The text in quotes is what gets printed
+        </div>
+
+        <div class="step">
+          <div class="step-num">Step 3: Save and exit</div>
+          <div class="step-content">
+            Press <code>Ctrl+X</code>, then <code>Y</code>, then <code>Enter</code> to save the file
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">Step 4: Run your script</div>
+          <div class="step-content">
+            Type this in the terminal:
+            <div class="code-example">bash hello.sh</div>
+            <div class="output-box">
+              <div class="output-label">Output:</div>
+              Hello, World!
+            </div>
+          </div>
+        </div>
+
+        <div class="warning-box">
+          <div class="warning-label">⚠️ Common Mistake:</div>
+          Don't forget the <code>#!/bin/bash</code> line at the very beginning! This tells the computer which program to use to run your script.
+        </div>
+
+        <div class="exercise-box">
+          <div class="exercise-title">Try It Yourself</div>
+          Create a script that prints your name and favorite food. Call it <code>about_me.sh</code>
+          <button class="solution-toggle" onclick="toggleSolution(this)">Show Solution</button>
+          <div class="solution">
+            <div class="code-example">#!/bin/bash
+echo "My name is Alice"
+echo "My favorite food is pizza"</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- LESSON 2 -->
+      <section class="lesson-card" id="lesson-2">
+        <h2 class="lesson-title">Lesson 2: Variables (Storing Information)</h2>
+        
+        <p class="lesson-intro">
+          Variables are like boxes where you store information. You can use them later in your script.
+        </p>
+
+        <div class="step">
+          <div class="step-num">Create a new file called variables.sh</div>
+          <div class="step-content">
+            <div class="code-example">#!/bin/bash
+
+name="Alice"
+age=25
+city="New York"
+
+echo "My name is $name"
+echo "I am $age years old"
+echo "I live in $city"</div>
+            Save this and run it with: <code>bash variables.sh</code>
+            <div class="output-box">
+              <div class="output-label">Output:</div>
+              My name is Alice<br/>
+              I am 25 years old<br/>
+              I live in New York
+            </div>
+          </div>
+        </div>
+
+        <div class="key-concept">
+          <strong>How variables work:</strong><br/>
+          • <code>name="Alice"</code> — Creates a variable named "name" and puts "Alice" in it<br/>
+          • <code>$name</code> — Gets the value from the variable (the dollar sign is VERY important!)<br/>
+          • Variables can hold text (strings) or numbers<br/>
+          • No spaces around the equals sign!
+        </div>
+
+        <div class="warning-box">
+          <div class="warning-label">🔴 This will NOT work:</div>
+          <code>name = "Alice"</code> ← spaces around = will cause an error<br/>
+          <code>echo name</code> ← missing $ will just print the word "name"
+        </div>
+
+        <div class="step">
+          <div class="step-num">Variable naming rules</div>
+          <div class="step-content">
+            • Use lowercase letters: <code>my_name</code> ✓<br/>
+            • Can use numbers: <code>name1</code>, <code>name2</code> ✓<br/>
+            • Cannot start with a number: <code>1name</code> ✗<br/>
+            • Cannot use spaces: <code>my name</code> ✗<br/>
+            • Use underscores for spaces: <code>my_name</code> ✓
+          </div>
+        </div>
+
+        <div class="exercise-box">
+          <div class="exercise-title">Try It Yourself</div>
+          Create a script that stores your favorite color and hobby, then prints them out in a sentence.
+          <button class="solution-toggle" onclick="toggleSolution(this)">Show Solution</button>
+          <div class="solution">
+            <div class="code-example">#!/bin/bash
+
+color="blue"
+hobby="painting"
+
+echo "My favorite color is $color"
+echo "My hobby is $hobby"</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- LESSON 3 -->
+      <section class="lesson-card" id="lesson-3">
+        <h2 class="lesson-title">Lesson 3: Getting Input From Users</h2>
+        
+        <p class="lesson-intro">
+          So far our scripts are boring because they always do the same thing. Let's make them ask the user for information!
+        </p>
+
+        <div class="step">
+          <div class="step-num">Create a file called greet.sh</div>
+          <div class="step-content">
+            <div class="code-example">#!/bin/bash
+
+echo "What is your name?"
+read name
+
+echo "Nice to meet you, $name!"
+echo "Welcome to bash scripting!"</div>
+            Save and run it: <code>bash greet.sh</code>
+            <div class="output-box">
+              <div class="output-label">Output (what you see):</div>
+              What is your name?<br/>
+              <span style="color: var(--amber);">_</span> ← cursor waits for you to type
+            </div>
+          </div>
+        </div>
+
+        <div class="key-concept">
+          <strong>How <code>read</code> works:</strong><br/>
+          • <code>read name</code> — Waits for the user to type something<br/>
+          • Stores whatever they type in a variable called "name"<br/>
+          • The user presses Enter when they're done typing<br/>
+          • Then the script continues
+        </div>
+
+        <div class="step">
+          <div class="step-num">Better way: Use a prompt</div>
+          <div class="step-content">
+            Instead of using echo and then read on separate lines, do this:
+            <div class="code-example">#!/bin/bash
+
+read -p "What is your name? " name
+echo "Nice to meet you, $name!"</div>
+            The <code>-p</code> flag lets you show a message while waiting for input. Much cleaner!
+          </div>
+        </div>
+
+        <div class="warning-box">
+          <div class="warning-label">💡 Pro Tip:</div>
+          Always put your variable in quotes when using it: <code>echo "Hello, $name"</code><br/>
+          This prevents problems if the input contains special characters.
+        </div>
+
+        <div class="exercise-box">
+          <div class="exercise-title">Try It Yourself</div>
+          Create a script that asks the user for their favorite food, then says something like "I love pizza too!"
+          <button class="solution-toggle" onclick="toggleSolution(this)">Show Solution</button>
+          <div class="solution">
+            <div class="code-example">#!/bin/bash
+
+read -p "What is your favorite food? " food
+echo "I love $food too!"</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- LESSON 4 -->
+      <section class="lesson-card" id="lesson-4">
+        <h2 class="lesson-title">Lesson 4: Making Decisions (if/then)</h2>
+        
+        <p class="lesson-intro">
+          Now let's make scripts that can make decisions. "If the user is an adult, print one thing. Otherwise, print something different."
+        </p>
+
+        <div class="step">
+          <div class="step-num">Create a file called age_check.sh</div>
+          <div class="step-content">
+            <div class="code-example">#!/bin/bash
+
+read -p "How old are you? " age
+
+if [ $age -ge 18 ]; then
+    echo "You are an adult!"
+else
+    echo "You are a minor."
+fi</div>
+            Run it: <code>bash age_check.sh</code>
+            <div class="output-box">
+              <div class="output-label">If you enter 20:</div>
+              You are an adult!
+            </div>
+            <div class="output-box">
+              <div class="output-label">If you enter 12:</div>
+              You are a minor.
+            </div>
+          </div>
+        </div>
+
+        <div class="key-concept">
+          <strong>The if/then/else structure:</strong><br/>
+          • <code>if [ condition ];</code> — Check if something is true<br/>
+          • <code>then</code> — What to do if it's true<br/>
+          • <code>else</code> — What to do if it's false<br/>
+          • <code>fi</code> — End the if block (fi = "if" backwards!)
+        </div>
+
+        <div class="step">
+          <div class="step-num">Comparison operators</div>
+          <div class="step-content">
+            For numbers:<br/>
+            • <code>-eq</code> — equal to<br/>
+            • <code>-ne</code> — NOT equal to<br/>
+            • <code>-lt</code> — less than<br/>
+            • <code>-le</code> — less than or equal<br/>
+            • <code>-gt</code> — greater than<br/>
+            • <code>-ge</code> — greater than or equal<br/>
+            <br/>
+            For text:<br/>
+            • <code>=</code> — equal to (note: just one = for text)<br/>
+            • <code>!=</code> — NOT equal to
+          </div>
+        </div>
+
+        <div class="warning-box">
+          <div class="warning-label">⚠️ Important:</div>
+          Look carefully at the spaces: <code>[ $age -ge 18 ]</code><br/>
+          There MUST be spaces after [ and before ]. This confuses beginners a lot!
+        </div>
+
+        <div class="exercise-box">
+          <div class="exercise-title">Try It Yourself</div>
+          Create a script that asks for a password. If they enter "secret123", print "Access granted!". Otherwise, print "Access denied!"
+          <button class="solution-toggle" onclick="toggleSolution(this)">Show Solution</button>
+          <div class="solution">
+            <div class="code-example">#!/bin/bash
+
+read -p "Enter password: " password
+
+if [ "$password" = "secret123" ]; then
+    echo "Access granted!"
+else
+    echo "Access denied!"
+fi</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- LESSON 5 -->
+      <section class="lesson-card" id="lesson-5">
+        <h2 class="lesson-title">Lesson 5: Loops (Repeat Code)</h2>
+        
+        <p class="lesson-intro">
+          Loops let you repeat code multiple times. Perfect for doing something again and again without typing the same thing over and over.
+        </p>
+
+        <div class="step">
+          <div class="step-num">Create a file called countdown.sh</div>
+          <div class="step-content">
+            <div class="code-example">#!/bin/bash
+
+for i in 5 4 3 2 1
+do
+    echo $i
+done
+
+echo "Blastoff!"</div>
+            Run it: <code>bash countdown.sh</code>
+            <div class="output-box">
+              <div class="output-label">Output:</div>
+              5<br/>
+              4<br/>
+              3<br/>
+              2<br/>
+              1<br/>
+              Blastoff!
+            </div>
+          </div>
+        </div>
+
+        <div class="key-concept">
+          <strong>How the for loop works:</strong><br/>
+          • <code>for i in 5 4 3 2 1</code> — i takes each value: 5, then 4, then 3, etc.<br/>
+          • <code>do</code> — Start the loop<br/>
+          • <code>echo $i</code> — Print the current value<br/>
+          • <code>done</code> — End the loop
+        </div>
+
+        <div class="step">
+          <div class="step-num">Better way: Use ranges</div>
+          <div class="step-content">
+            Instead of listing numbers, use a range:
+            <div class="code-example">#!/bin/bash
+
+for i in {1..5}
+do
+    echo "Number: $i"
+done</div>
+            The <code>{1..5}</code> means "all numbers from 1 to 5"
+            <div class="output-box">
+              <div class="output-label">Output:</div>
+              Number: 1<br/>
+              Number: 2<br/>
+              Number: 3<br/>
+              Number: 4<br/>
+              Number: 5
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">Loop over a list</div>
+          <div class="step-content">
+            You can loop over words too:
+            <div class="code-example">#!/bin/bash
+
+for fruit in apple banana orange
+do
+    echo "I like $fruit"
+done</div>
+            <div class="output-box">
+              <div class="output-label">Output:</div>
+              I like apple<br/>
+              I like banana<br/>
+              I like orange
+            </div>
+          </div>
+        </div>
+
+        <div class="exercise-box">
+          <div class="exercise-title">Try It Yourself</div>
+          Create a script that prints the times table for 3 (3×1=3, 3×2=6, ... 3×10=30)
+          <button class="solution-toggle" onclick="toggleSolution(this)">Show Solution</button>
+          <div class="solution">
+            <div class="code-example">#!/bin/bash
+
+for i in {1..10}
+do
+    result=$((3 * i))
+    echo "3 x $i = $result"
+done</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- LESSON 6 -->
+      <section class="lesson-card" id="lesson-6">
+        <h2 class="lesson-title">Lesson 6: Your First Real Script</h2>
+        
+        <p class="lesson-intro">
+          Let's put everything together and create a practical script that does something useful!
+        </p>
+
+        <div class="step">
+          <div class="step-num">Create a file called guess_game.sh</div>
+          <div class="step-content">
+            This is a simple guessing game:
+            <div class="code-example">#!/bin/bash
+
+echo "Welcome to the number guessing game!"
+echo ""
+
+secret=42
+guesses=0
+
+while true
+do
+    read -p "Guess a number between 1 and 100: " guess
+    guesses=$((guesses + 1))
+    
+    if [ $guess -eq $secret ]; then
+        echo "You got it! The number was $secret"
+        echo "It took you $guesses tries"
+        break
+    elif [ $guess -lt $secret ]; then
+        echo "Too low! Try again."
+    else
+        echo "Too high! Try again."
+    fi
+done</div>
+            Run it: <code>bash guess_game.sh</code>
+          </div>
+        </div>
+
+        <div class="key-concept">
+          <strong>New things in this script:</strong><br/>
+          • <code>while true</code> — Loop forever (until we use break)<br/>
+          • <code>guesses=$((guesses + 1))</code> — Add 1 to the counter<br/>
+          • <code>break</code> — Exit the loop immediately<br/>
+          • <code>elif</code> — "Else if" for more conditions
+        </div>
+
+        <div class="step">
+          <div class="step-num">Let's break down what happens:</div>
+          <div class="step-content">
+            1. Script asks the user to guess a number<br/>
+            2. Count how many tries they've had<br/>
+            3. If they guessed right, congratulate them and show the tries<br/>
+            4. If their guess is too low, tell them<br/>
+            5. If their guess is too high, tell them<br/>
+            6. Go back to step 1 and ask again<br/>
+            7. When they guess correctly, use <code>break</code> to stop the loop
+          </div>
+        </div>
+
+        <div class="exercise-box">
+          <div class="exercise-title">Challenge: Improve the Game</div>
+          Modify the script to:<br/>
+          1. Let the player choose the difficulty (easy = 1-20, medium = 1-50, hard = 1-100)<br/>
+          2. Give them a maximum of 5 tries<br/>
+          3. If they run out of tries, tell them the answer<br/>
+          <button class="solution-toggle" onclick="toggleSolution(this)">Show Solution</button>
+          <div class="solution">
+            <div class="code-example">#!/bin/bash
+
+echo "Welcome to the guessing game!"
+echo ""
+read -p "Choose difficulty (easy/medium/hard): " difficulty
+
+if [ "$difficulty" = "easy" ]; then
+    max_num=20
+    max_tries=5
+elif [ "$difficulty" = "medium" ]; then
+    max_num=50
+    max_tries=5
+else
+    max_num=100
+    max_tries=5
+fi
+
+secret=$((RANDOM % max_num + 1))
+guesses=0
+
+while [ $guesses -lt $max_tries ]
+do
+    read -p "Guess (1-$max_num): " guess
+    guesses=$((guesses + 1))
+    
+    if [ $guess -eq $secret ]; then
+        echo "Correct! It took $guesses tries!"
+        exit 0
+    elif [ $guess -lt $secret ]; then
+        echo "Too low!"
+    else
+        echo "Too high!"
+    fi
+done
+
+echo "Out of tries! The answer was $secret"</div>
+          </div>
+        </div>
+
+        <div class="warning-box">
+          <div class="warning-label">💡 New concept: RANDOM</div>
+          <code>RANDOM</code> is a bash variable that gives a random number<br/>
+          <code>$((RANDOM % 100))</code> gives a number from 0-99<br/>
+          This is a built-in feature of bash!
+        </div>
+
+      </section>
+
+      <!-- Next Steps -->
+      <section class="lesson-card">
+        <h2 class="lesson-title">🎉 Congratulations!</h2>
+        <p class="lesson-intro">
+          You've learned the basics of bash scripting! You now know:
+        </p>
+        <div style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.8;">
+          ✅ How to create and run bash scripts<br/>
+          ✅ How to use variables to store information<br/>
+          ✅ How to get input from users<br/>
+          ✅ How to make decisions with if/then/else<br/>
+          ✅ How to repeat code with loops<br/>
+          ✅ How to combine these into real scripts<br/>
+        </div>
+        <p style="margin-top: 1.5rem; color: var(--text-dim); font-size: 0.95rem;">
+          Ready for more? Check out the <a href="bash.html" style="color: var(--cyan);">Advanced Bash Guide</a> for more complex topics like functions, arrays, and error handling!
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="auth.js"></script>
+  <script>Auth.logVisit('bash.html');</script>
+
+  <script>
+    // Toggle solution visibility
+    function toggleSolution(button) {
+      const solution = button.nextElementSibling;
+      solution.classList.toggle('show');
+      button.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+    }
+
+    // Scroll spy for sidebar
+    document.addEventListener('DOMContentLoaded', function() {
+      const sections = document.querySelectorAll('.lesson-card[id]');
+      const navLinks = document.querySelectorAll('.nav-link[data-section]');
+
+      window.addEventListener('scroll', function() {
+        let current = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (pageYOffset >= sectionTop - 200) {
+            current = section.getAttribute('id');
+          }
+        });
+
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('data-section') === current) {
+            link.classList.add('active');
+          }
+        });
+      });
+    });
+
+    // Mobile sidebar
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      backdrop.classList.toggle('visible');
+    });
+
+    backdrop.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('visible');
+    });
+
+    sidebar.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          sidebar.classList.remove('open');
+          backdrop.classList.remove('visible');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

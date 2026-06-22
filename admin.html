@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — linuxbyOBA</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    .admin-wrap {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      padding: 2rem 2rem 4rem;
+      background: var(--bg);
+    }
+    .admin-container { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+
+    .admin-title-bar { padding: 0.5rem 0 0.25rem; }
+    .admin-pretitle {
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--green);
+      letter-spacing: 0.15em; margin-bottom: 0.5rem;
+    }
+    .admin-title {
+      font-family: var(--font-mono); font-size: clamp(1.5rem, 3vw, 2.1rem);
+      font-weight: 900; color: var(--text-hi); letter-spacing: -0.02em;
+    }
+    .admin-title span { color: var(--green); }
+
+    .gate-screen {
+      max-width: 420px; margin: 4rem auto; text-align: center;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 2rem 1.75rem;
+    }
+    .gate-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+    .gate-title { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; color: var(--text-hi); margin-bottom: 0.5rem; }
+    .gate-body { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 1.25rem; }
+    .gate-link {
+      display: inline-block; font-family: var(--font-mono); font-size: 0.82rem;
+      color: #000; background: var(--green); border-radius: var(--radius);
+      padding: 0.6rem 1.3rem; text-decoration: none; font-weight: 700;
+    }
+    .gate-link:hover { opacity: 0.88; text-decoration: none; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.1rem 1.25rem;
+    }
+    .stat-label {
+      font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem;
+    }
+    .stat-value { font-family: var(--font-mono); font-size: 1.7rem; font-weight: 900; color: var(--green); }
+    .stat-sub { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.25rem; }
+
+    .admin-section {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem 1.4rem;
+    }
+    .admin-section-title {
+      font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700;
+      color: var(--text-hi); margin-bottom: 1rem; display: flex; align-items: center;
+      justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .admin-search {
+      background: #080b0f; border: 1px solid var(--border-hi); border-radius: var(--radius);
+      padding: 0.4rem 0.7rem; font-family: var(--font-mono); font-size: 0.78rem;
+      color: var(--text-hi); outline: none; min-width: 200px;
+    }
+    .admin-search:focus { border-color: var(--green); }
+
+    .admin-table-wrap { overflow-x: auto; }
+    table.admin-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    table.admin-table th {
+      text-align: left; font-family: var(--font-mono); font-size: 0.68rem;
+      color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border-hi);
+      white-space: nowrap; cursor: pointer; user-select: none;
+    }
+    table.admin-table th:hover { color: var(--cyan); }
+    table.admin-table td {
+      padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border);
+      color: var(--text); white-space: nowrap;
+    }
+    table.admin-table tr:last-child td { border-bottom: none; }
+    .email-cell { font-family: var(--font-mono); color: var(--text-hi); }
+    .level-badge-cell {
+      font-family: var(--font-mono); font-size: 0.75rem; color: #000;
+      background: var(--green); border-radius: 20px; padding: 0.15rem 0.55rem;
+      display: inline-block; font-weight: 700;
+    }
+    .level-badge-cell.low { background: var(--amber); }
+    .score-cell { color: var(--green); font-family: var(--font-mono); }
+    .empty-row td { text-align: center; color: var(--text-dim); padding: 1.5rem; }
+
+    .admin-loading { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-dim); padding: 1rem 0; }
+    .admin-error {
+      font-family: var(--font-mono); font-size: 0.8rem; color: #ff8fa3;
+      background: rgba(255,83,112,0.07); border: 1px solid rgba(255,83,112,0.22);
+      border-radius: var(--radius); padding: 0.7rem 0.9rem;
+    }
+
+    .refresh-btn {
+      font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim);
+      background: none; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 0.35rem 0.8rem; cursor: pointer;
+    }
+    .refresh-btn:hover { color: var(--green); border-color: var(--green); }
+
+    .privacy-note {
+      font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);
+      line-height: 1.6; background: rgba(79,195,247,0.05); border: 1px solid rgba(79,195,247,0.15);
+      border-radius: var(--radius); padding: 0.7rem 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .admin-wrap { margin-left: 0; padding-top: 84px; padding-left: 1rem; padding-right: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-bracket">[</span>linux<span class="logo-accent">byOBA</span><span class="logo-bracket">]</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <span class="nav-label">// navigation</span>
+        <ul>
+          <li><a href="index.html"    class="nav-link"><span class="nav-bullet">▸</span> Commands</a></li>
+          <li><a href="bash.html"     class="nav-link"><span class="nav-bullet">▸</span> Bash Scripting</a></li>
+          <li><a href="install.html"  class="nav-link"><span class="nav-bullet">▸</span> Install Linux</a></li>
+          <li><a href="game.html"     class="nav-link"><span class="nav-bullet">▸</span> 🎮 Bash Quest</a></li>
+          <li><a href="account.html"  class="nav-link"><span class="nav-bullet">▸</span> 👤 Account</a></li>
+          <li><a href="admin.html"    class="nav-link active"><span class="nav-bullet">▸</span> 🛡️ Admin</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="sidebar-footer"><span>admin dashboard</span></div>
+  </aside>
+
+  <header class="mobile-header">
+    <button class="menu-toggle" id="menuToggle">&#9776;</button>
+    <span class="mobile-title">🛡️ Admin</span>
+  </header>
+
+  <div class="admin-wrap">
+    <div class="admin-container">
+
+      <div class="admin-title-bar">
+        <div class="admin-pretitle">// site monitoring</div>
+        <h1 class="admin-title">Admin <span>Dashboard</span></h1>
+      </div>
+
+      <div id="checkingGate" class="gate-screen">
+        <div class="gate-icon">🔒</div>
+        <div class="gate-title">Checking access…</div>
+        <div class="gate-body">One moment.</div>
+      </div>
+
+      <div id="deniedGate" class="gate-screen" style="display:none">
+        <div class="gate-icon">⛔</div>
+        <div class="gate-title">Admin access only</div>
+        <div class="gate-body">This page is restricted to the site administrator account. If you believe this is a mistake, sign in with the admin account first.</div>
+        <a href="account.html" class="gate-link">Go to Sign In</a>
+      </div>
+
+      <div id="adminContent" style="display:none">
+
+        <div class="privacy-note">
+          ℹ️ This dashboard shows registered user emails, game progress, and anonymous visit counts only. No IP addresses or device fingerprints are collected or stored anywhere on this site.
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Registered Users</div>
+            <div class="stat-value" id="statUsers">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Players</div>
+            <div class="stat-value" id="statPlayers">—</div>
+            <div class="stat-sub">have saved game progress</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Visits Today</div>
+            <div class="stat-value" id="statVisitsToday">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Visits (7 days)</div>
+            <div class="stat-value" id="statVisitsWeek">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Visits Logged</div>
+            <div class="stat-value" id="statVisitsTotal">—</div>
+          </div>
+        </div>
+
+        <div class="admin-section">
+          <div class="admin-section-title">
+            <span>// players & progress</span>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <input class="admin-search" id="playerSearch" placeholder="filter by email…" />
+              <button class="refresh-btn" id="refreshPlayersBtn">↻ Refresh</button>
+            </div>
+          </div>
+          <div id="playersLoading" class="admin-loading">Loading players…</div>
+          <div id="playersError" class="admin-error" style="display:none"></div>
+          <div class="admin-table-wrap" id="playersTableWrap" style="display:none">
+            <table class="admin-table" id="playersTable">
+              <thead>
+                <tr>
+                  <th data-sort="email">Email</th>
+                  <th data-sort="level">Level</th>
+                  <th data-sort="score">Score</th>
+                  <th data-sort="lives">Lives</th>
+                  <th data-sort="updated">Last Active</th>
+                </tr>
+              </thead>
+              <tbody id="playersTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="admin-section">
+          <div class="admin-section-title">
+            <span>// recent visits</span>
+            <button class="refresh-btn" id="refreshVisitsBtn">↻ Refresh</button>
+          </div>
+          <div id="visitsLoading" class="admin-loading">Loading visits…</div>
+          <div id="visitsError" class="admin-error" style="display:none"></div>
+          <div class="admin-table-wrap" id="visitsTableWrap" style="display:none">
+            <table class="admin-table" id="visitsTable">
+              <thead>
+                <tr><th>Page</th><th>Time</th></tr>
+              </thead>
+              <tbody id="visitsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+  (function(){
+    const checkingGate = document.getElementById('checkingGate');
+    const deniedGate = document.getElementById('deniedGate');
+    const adminContent = document.getElementById('adminContent');
+
+    const statUsers = document.getElementById('statUsers');
+    const statPlayers = document.getElementById('statPlayers');
+    const statVisitsToday = document.getElementById('statVisitsToday');
+    const statVisitsWeek = document.getElementById('statVisitsWeek');
+    const statVisitsTotal = document.getElementById('statVisitsTotal');
+
+    const playersLoading = document.getElementById('playersLoading');
+    const playersError = document.getElementById('playersError');
+    const playersTableWrap = document.getElementById('playersTableWrap');
+    const playersTbody = document.getElementById('playersTbody');
+    const playerSearch = document.getElementById('playerSearch');
+    const refreshPlayersBtn = document.getElementById('refreshPlayersBtn');
+
+    const visitsLoading = document.getElementById('visitsLoading');
+    const visitsError = document.getElementById('visitsError');
+    const visitsTableWrap = document.getElementById('visitsTableWrap');
+    const visitsTbody = document.getElementById('visitsTbody');
+    const refreshVisitsBtn = document.getElementById('refreshVisitsBtn');
+
+    let allPlayers = [];
+    let sortKey = 'updated';
+    let sortDir = -1;
+
+    async function checkAccess() {
+      const admin = await Auth.isAdmin();
+      checkingGate.style.display = 'none';
+      if (!admin) {
+        deniedGate.style.display = '';
+        return;
+      }
+      adminContent.style.display = '';
+      loadPlayers();
+      loadVisits();
+    }
+
+    async function loadPlayers() {
+      playersLoading.style.display = '';
+      playersError.style.display = 'none';
+      playersTableWrap.style.display = 'none';
+
+      const [progressRes, emailsRes] = await Promise.all([
+        Auth.adminGetAllProgress(),
+        Auth.adminGetAllUserEmails(),
+      ]);
+
+      if (progressRes.error || emailsRes.error) {
+        playersLoading.style.display = 'none';
+        playersError.style.display = '';
+        playersError.textContent = 'Could not load player data. Check that the SQL setup (including user_emails + admin policies) has been run in Supabase, and that your admin email matches exactly.';
+        return;
+      }
+
+      const emailMap = {};
+      emailsRes.data.forEach(row => { emailMap[row.user_id] = row.email; });
+
+      allPlayers = progressRes.data.map(row => {
+        const s = row.state || {};
+        return {
+          user_id: row.user_id,
+          email: emailMap[row.user_id] || '(email unavailable)',
+          level: typeof s.level === 'number' ? s.level + 1 : '—',
+          score: typeof s.score === 'number' ? s.score : 0,
+          lives: typeof s.lives === 'number' ? s.lives : '—',
+          updated: row.updated_at,
+        };
+      });
+
+      statUsers.textContent = emailsRes.data.length;
+      statPlayers.textContent = allPlayers.length;
+
+      playersLoading.style.display = 'none';
+      playersTableWrap.style.display = '';
+      renderPlayers();
+    }
+
+    function renderPlayers() {
+      const filter = playerSearch.value.trim().toLowerCase();
+      let rows = allPlayers.filter(p => !filter || p.email.toLowerCase().includes(filter));
+
+      rows = rows.slice().sort((a, b) => {
+        let av = a[sortKey], bv = b[sortKey];
+        if (sortKey === 'updated') { av = new Date(av).getTime(); bv = new Date(bv).getTime(); }
+        if (typeof av === 'string') return sortDir * av.localeCompare(bv);
+        return sortDir * ((av || 0) - (bv || 0));
+      });
+
+      playersTbody.innerHTML = '';
+      if (rows.length === 0) {
+        playersTbody.innerHTML = '<tr class="empty-row"><td colspan="5">No players found.</td></tr>';
+        return;
+      }
+
+      rows.forEach(p => {
+        const tr = document.createElement('tr');
+        const levelClass = (typeof p.level === 'number' && p.level >= 15) ? '' : 'low';
+        const when = p.updated ? new Date(p.updated).toLocaleString() : '—';
+        tr.innerHTML = `
+          <td class="email-cell">${escapeHtml(p.email)}</td>
+          <td><span class="level-badge-cell ${levelClass}">${p.level}/30</span></td>
+          <td class="score-cell">${p.score}</td>
+          <td>${p.lives}</td>
+          <td>${escapeHtml(when)}</td>
+        `;
+        playersTbody.appendChild(tr);
+      });
+    }
+
+    document.querySelectorAll('#playersTable th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.getAttribute('data-sort');
+        if (sortKey === key) { sortDir *= -1; } else { sortKey = key; sortDir = 1; }
+        renderPlayers();
+      });
+    });
+    playerSearch.addEventListener('input', renderPlayers);
+    refreshPlayersBtn.addEventListener('click', loadPlayers);
+
+    async function loadVisits() {
+      visitsLoading.style.display = '';
+      visitsError.style.display = 'none';
+      visitsTableWrap.style.display = 'none';
+
+      const { data, error } = await Auth.adminGetVisitStats();
+      if (error) {
+        visitsLoading.style.display = 'none';
+        visitsError.style.display = '';
+        visitsError.textContent = 'Could not load visit data. Check that site_visits + its admin policy were created in Supabase.';
+        return;
+      }
+
+      const now = Date.now();
+      const dayMs = 24 * 60 * 60 * 1000;
+      const today = data.filter(v => now - new Date(v.visited_at).getTime() < dayMs).length;
+      const week = data.filter(v => now - new Date(v.visited_at).getTime() < 7 * dayMs).length;
+
+      statVisitsToday.textContent = today;
+      statVisitsWeek.textContent = week;
+      statVisitsTotal.textContent = data.length;
+
+      visitsTbody.innerHTML = '';
+      if (data.length === 0) {
+        visitsTbody.innerHTML = '<tr class="empty-row"><td colspan="2">No visits logged yet.</td></tr>';
+      } else {
+        data.slice(0, 200).forEach(v => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${escapeHtml(v.page)}</td><td>${escapeHtml(new Date(v.visited_at).toLocaleString())}</td>`;
+          visitsTbody.appendChild(tr);
+        });
+      }
+
+      visitsLoading.style.display = 'none';
+      visitsTableWrap.style.display = '';
+    }
+    refreshVisitsBtn.addEventListener('click', loadVisits);
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = String(str == null ? '' : str);
+      return d.innerHTML;
+    }
+
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+    menuToggle.addEventListener('click', () => { sidebar.classList.toggle('open'); backdrop.classList.toggle('visible'); });
+    backdrop.addEventListener('click', () => { sidebar.classList.remove('open'); backdrop.classList.remove('visible'); });
+
+    checkAccess();
+    Auth.logVisit('admin.html');
+  })();
+  </script>
+</body>
+</html>

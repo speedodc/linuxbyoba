@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Install Linux — linuxbyOBA</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="install.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-bracket">[</span>linux<span class="logo-accent">byOBA</span><span class="logo-bracket">]</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <span class="nav-label">// navigation</span>
+        <ul>
+          <li><a href="index.html" class="nav-link"><span class="nav-bullet">▸</span> Commands</a></li>
+          <li><a href="bash.html" class="nav-link"><span class="nav-bullet">▸</span> Bash Scripting</a></li>
+          <li><a href="install.html" class="nav-link active"><span class="nav-bullet">▸</span> Install Linux</a></li>
+          <li><a href="game.html" class="nav-link"><span class="nav-bullet">▸</span> 🎮 Bash Quest</a></li>
+          <li><a href="account.html" class="nav-link"><span class="nav-bullet">▸</span> 👤 Account</a></li>
+        </ul>
+      </div>
+      <div class="nav-section">
+        <span class="nav-label">// on this page</span>
+        <ul>
+          <li><a href="#what-is-linux" class="nav-link"><span class="nav-bullet">▸</span> What is Linux?</a></li>
+          <li><a href="#choose-distro" class="nav-link"><span class="nav-bullet">▸</span> Choose a Distro</a></li>
+          <li><a href="#install-ubuntu" class="nav-link"><span class="nav-bullet">▸</span> Install Ubuntu</a></li>
+          <li><a href="#wsl-powershell" class="nav-link"><span class="nav-bullet">▸</span> Ubuntu on PowerShell</a></li>
+          <li><a href="#first-steps" class="nav-link"><span class="nav-bullet">▸</span> First Steps</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="sidebar-footer"><span>made for coursemates</span></div>
+  </aside>
+
+  <header class="mobile-header">
+    <button class="menu-toggle" id="menuToggle">&#9776;</button>
+    <span class="mobile-title">[linuxdocs]</span>
+  </header>
+
+  <main class="content">
+    <div class="content-inner">
+
+      <section class="hero">
+        <div class="hero-tag">// installation guide</div>
+        <h1 class="hero-title">Install<br /><span class="hero-accent">Linux</span></h1>
+        <p class="hero-desc">Everything you need to get Linux running — whether you want a full install, a virtual machine, or Ubuntu right inside Windows using PowerShell (WSL).</p>
+      </section>
+
+      <!-- ===== WHAT IS LINUX ===== -->
+      <section class="install-section" id="what-is-linux">
+        <div class="section-header">
+          <div class="section-label">section 01</div>
+          <h2 class="section-title">What is Linux?</h2>
+        </div>
+        <div class="prose-card">
+          <p>Linux is an open-source operating system kernel first created by <strong>Linus Torvalds</strong> in 1991. Today it powers everything from Android phones to web servers, supercomputers, and cloud infrastructure.</p>
+          <p>When people say "install Linux" they usually mean installing a <strong>Linux distribution</strong> (distro) — the kernel bundled with a desktop environment, package manager, and default apps.</p>
+          <div class="callout callout-green">
+            <span class="callout-icon">💡</span>
+            <div>Linux is free. You don't need a product key, activation, or a subscription. Download, install, and use it forever.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== CHOOSE A DISTRO ===== -->
+      <section class="install-section" id="choose-distro">
+        <div class="section-header">
+          <div class="section-label">section 02</div>
+          <h2 class="section-title">Choose a Distribution</h2>
+          <p class="section-desc">Not sure which Linux to install? Here's a quick guide for students.</p>
+        </div>
+
+        <div class="distro-grid">
+
+          <div class="distro-card recommended">
+            <div class="distro-badge">recommended for beginners</div>
+            <div class="distro-header">
+              <div class="distro-icon ubuntu-icon">U</div>
+              <div>
+                <div class="distro-name">Ubuntu</div>
+                <div class="distro-version">24.04 LTS</div>
+              </div>
+            </div>
+            <p class="distro-desc">The most popular Linux distro. Huge community, tons of tutorials, and works great on most hardware. LTS = Long-Term Support (5 years of updates).</p>
+            <div class="distro-tags">
+              <span class="dtag">beginner-friendly</span>
+              <span class="dtag">large community</span>
+              <span class="dtag">APT packages</span>
+            </div>
+            <a href="https://ubuntu.com/download/desktop" target="_blank" rel="noopener" class="distro-link">Download Ubuntu →</a>
+          </div>
+
+          <div class="distro-card">
+            <div class="distro-header">
+              <div class="distro-icon mint-icon">M</div>
+              <div>
+                <div class="distro-name">Linux Mint</div>
+                <div class="distro-version">21.3</div>
+              </div>
+            </div>
+            <p class="distro-desc">Feels closest to Windows. If you're coming from Windows and want something familiar, Mint is your best bet.</p>
+            <div class="distro-tags">
+              <span class="dtag">Windows-like</span>
+              <span class="dtag">lightweight</span>
+              <span class="dtag">stable</span>
+            </div>
+            <a href="https://linuxmint.com/download.php" target="_blank" rel="noopener" class="distro-link">Download Mint →</a>
+          </div>
+
+          <div class="distro-card">
+            <div class="distro-header">
+              <div class="distro-icon kali-icon">K</div>
+              <div>
+                <div class="distro-name">Kali Linux</div>
+                <div class="distro-version">2024.2</div>
+              </div>
+            </div>
+            <p class="distro-desc">Built for cybersecurity and penetration testing. Comes pre-installed with hundreds of security tools. Not recommended as your first Linux.</p>
+            <div class="distro-tags">
+              <span class="dtag">security focused</span>
+              <span class="dtag">advanced</span>
+              <span class="dtag">pentesting</span>
+            </div>
+            <a href="https://www.kali.org/get-kali/" target="_blank" rel="noopener" class="distro-link">Download Kali →</a>
+          </div>
+
+          <div class="distro-card">
+            <div class="distro-header">
+              <div class="distro-icon arch-icon">A</div>
+              <div>
+                <div class="distro-name">Arch Linux</div>
+                <div class="distro-version">rolling release</div>
+              </div>
+            </div>
+            <p class="distro-desc">Minimalist and powerful. You build it from scratch, so you learn exactly how Linux works. High difficulty — only attempt after you're comfortable with the basics.</p>
+            <div class="distro-tags">
+              <span class="dtag">advanced</span>
+              <span class="dtag">rolling release</span>
+              <span class="dtag">manual setup</span>
+            </div>
+            <a href="https://archlinux.org/download/" target="_blank" rel="noopener" class="distro-link">Download Arch →</a>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===== INSTALL UBUNTU ===== -->
+      <section class="install-section" id="install-ubuntu">
+        <div class="section-header">
+          <div class="section-label">section 03</div>
+          <h2 class="section-title">Install Ubuntu (Full Install)</h2>
+          <p class="section-desc">Step-by-step guide to installing Ubuntu alongside or instead of Windows.</p>
+        </div>
+
+        <div class="steps-wrap">
+
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <div class="step-body">
+              <h3 class="step-title">Download the Ubuntu ISO</h3>
+              <p>Go to <a href="https://ubuntu.com/download/desktop" target="_blank">ubuntu.com/download/desktop</a> and download the latest LTS version. The file will be around <strong>5 GB</strong>.</p>
+              <div class="callout callout-cyan">
+                <span class="callout-icon">📁</span>
+                <div>An <strong>ISO file</strong> is a complete image of a disc. You'll flash it onto a USB drive to create a bootable installer.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <div class="step-body">
+              <h3 class="step-title">Flash the ISO to a USB Drive</h3>
+              <p>You need a USB drive with at least <strong>8 GB</strong> of space. Flashing will erase everything on it.</p>
+              <p>Download <a href="https://www.balena.io/etcher" target="_blank">balenaEtcher</a> (free, works on Windows/Mac/Linux):</p>
+              <ol class="numbered-list">
+                <li>Open balenaEtcher</li>
+                <li>Click <strong>"Flash from file"</strong> → select your Ubuntu .iso</li>
+                <li>Click <strong>"Select target"</strong> → choose your USB drive</li>
+                <li>Click <strong>"Flash!"</strong> and wait ~5 minutes</li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <div class="step-body">
+              <h3 class="step-title">Boot from the USB Drive</h3>
+              <p>Restart your computer and enter the <strong>BIOS/UEFI boot menu</strong>. The key to press depends on your manufacturer:</p>
+              <table class="flags-table">
+                <thead><tr><th>Brand</th><th>Key to press at startup</th></tr></thead>
+                <tbody>
+                  <tr><td>Dell</td><td><code>F12</code></td></tr>
+                  <tr><td>HP</td><td><code>F9</code> or <code>Esc</code></td></tr>
+                  <tr><td>Lenovo</td><td><code>F12</code> or <code>Fn+F12</code></td></tr>
+                  <tr><td>ASUS</td><td><code>F8</code> or <code>Esc</code></td></tr>
+                  <tr><td>Acer</td><td><code>F12</code></td></tr>
+                  <tr><td>MSI</td><td><code>F11</code></td></tr>
+                </tbody>
+              </table>
+              <p>Select your USB drive from the boot menu. Ubuntu will load a live environment.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <div class="step-body">
+              <h3 class="step-title">Run the Ubuntu Installer</h3>
+              <ol class="numbered-list">
+                <li>Click <strong>"Install Ubuntu"</strong> on the desktop</li>
+                <li>Select your language and keyboard layout</li>
+                <li>Choose <strong>"Normal installation"</strong> and check "Download updates while installing"</li>
+                <li>For installation type, choose:
+                  <ul class="bullet-list">
+                    <li><strong>"Install alongside Windows"</strong> — keeps Windows, dual-boot (recommended if unsure)</li>
+                    <li><strong>"Erase disk and install Ubuntu"</strong> — replaces Windows completely</li>
+                  </ul>
+                </li>
+                <li>Set your timezone, name, username, and password</li>
+                <li>Click <strong>Install</strong> and wait ~15–20 minutes</li>
+                <li>Restart when prompted. Remove the USB drive when asked.</li>
+              </ol>
+              <div class="callout callout-amber">
+                <span class="callout-icon">⚠️</span>
+                <div><strong>Back up your data first!</strong> If you choose "Erase disk", all data on that drive will be permanently deleted.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">05</div>
+            <div class="step-body">
+              <h3 class="step-title">First Boot — Update Everything</h3>
+              <p>After logging into Ubuntu for the first time, open the terminal (<strong>Ctrl + Alt + T</strong>) and run:</p>
+              <div class="code-block">
+                <div class="code-label">bash</div>
+                <pre><code>sudo apt update && sudo apt upgrade -y</code></pre>
+                <button class="copy-snippet" data-code="sudo apt update && sudo apt upgrade -y">Copy</button>
+              </div>
+              <p>This updates the package list and installs all available upgrades. Always do this after a fresh install.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===== WSL / POWERSHELL ===== -->
+      <section class="install-section" id="wsl-powershell">
+        <div class="section-header">
+          <div class="section-label">section 04</div>
+          <h2 class="section-title">Ubuntu on Windows (WSL via PowerShell)</h2>
+          <p class="section-desc">Run a full Ubuntu Linux terminal inside Windows 10/11 without dual-booting or a VM. This is the fastest way to get started.</p>
+        </div>
+
+        <div class="callout callout-green" style="margin-bottom:1.5rem">
+          <span class="callout-icon">🪟</span>
+          <div><strong>WSL (Windows Subsystem for Linux)</strong> is a feature built into Windows 10/11 that lets you run a real Linux environment directly inside Windows. No reboot needed — it opens like any other app.</div>
+        </div>
+
+        <div class="steps-wrap">
+
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <div class="step-body">
+              <h3 class="step-title">Open PowerShell as Administrator</h3>
+              <ol class="numbered-list">
+                <li>Press <kbd>Win</kbd> key and search <strong>PowerShell</strong></li>
+                <li>Right-click <strong>Windows PowerShell</strong></li>
+                <li>Click <strong>"Run as administrator"</strong></li>
+                <li>Click <strong>Yes</strong> on the UAC prompt</li>
+              </ol>
+              <div class="callout callout-amber">
+                <span class="callout-icon">⚠️</span>
+                <div>You <strong>must</strong> run as Administrator or the install command will fail with a permissions error.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <div class="step-body">
+              <h3 class="step-title">Install WSL + Ubuntu with One Command</h3>
+              <p>In the Administrator PowerShell window, paste this single command and press <kbd>Enter</kbd>:</p>
+              <div class="code-block">
+                <div class="code-label">powershell</div>
+                <pre><code>wsl --install</code></pre>
+                <button class="copy-snippet" data-code="wsl --install">Copy</button>
+              </div>
+              <p>This automatically:</p>
+              <ul class="bullet-list">
+                <li>Enables the WSL feature</li>
+                <li>Enables the Virtual Machine Platform</li>
+                <li>Downloads and installs Ubuntu (latest LTS)</li>
+              </ul>
+              <div class="callout callout-cyan">
+                <span class="callout-icon">ℹ️</span>
+                <div>The download is around <strong>500 MB</strong>. It may take a few minutes depending on your connection speed.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <div class="step-body">
+              <h3 class="step-title">Restart Your Computer</h3>
+              <p>After the install finishes, you'll see this message:</p>
+              <div class="code-block terminal-style">
+                <div class="code-label">output</div>
+                <pre><code>The requested operation is successful. Changes will not be effective until the system is rebooted.</code></pre>
+              </div>
+              <p>Save any open work and restart your computer. WSL won't work until you do.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <div class="step-body">
+              <h3 class="step-title">Set Up Your Ubuntu User</h3>
+              <p>After restarting, Ubuntu will open automatically and ask you to create a user account:</p>
+              <div class="code-block terminal-style">
+                <div class="code-label">ubuntu setup</div>
+                <pre><code>Enter new UNIX username: <span class="code-input">yourname</span>
+New password: <span class="code-input">********</span>
+Retype new password: <span class="code-input">********</span>
+passwd: password updated successfully</code></pre>
+              </div>
+              <ul class="bullet-list">
+                <li>Choose any lowercase username (no spaces)</li>
+                <li>The password won't show as you type — that's normal</li>
+                <li>This password is used for <code>sudo</code> commands</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">05</div>
+            <div class="step-body">
+              <h3 class="step-title">Install a Specific Ubuntu Version (Optional)</h3>
+              <p>Want Ubuntu 22.04 instead of the default? You can choose:</p>
+              <div class="code-block">
+                <div class="code-label">powershell</div>
+                <pre><code># List all available Linux distros
+wsl --list --online
+
+# Install a specific version
+wsl --install -d Ubuntu-22.04</code></pre>
+                <button class="copy-snippet" data-code="wsl --list --online">Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">06</div>
+            <div class="step-body">
+              <h3 class="step-title">Useful WSL Commands in PowerShell</h3>
+              <p>You can manage WSL at any time from PowerShell (no admin needed for these):</p>
+              <table class="flags-table">
+                <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+                <tbody>
+                  <tr><td><code>wsl</code></td><td>Open the default Linux distro</td></tr>
+                  <tr><td><code>wsl --list --verbose</code></td><td>Show installed distros and their status</td></tr>
+                  <tr><td><code>wsl --shutdown</code></td><td>Stop all running WSL instances</td></tr>
+                  <tr><td><code>wsl --unregister Ubuntu</code></td><td>Remove Ubuntu (deletes all data inside!)</td></tr>
+                  <tr><td><code>wsl --update</code></td><td>Update WSL itself</td></tr>
+                  <tr><td><code>wsl --set-version Ubuntu 2</code></td><td>Upgrade distro to WSL version 2</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">07</div>
+            <div class="step-body">
+              <h3 class="step-title">Open Ubuntu Anytime</h3>
+              <p>After setup, you can launch Ubuntu any of these ways:</p>
+              <ul class="bullet-list">
+                <li>Search <strong>"Ubuntu"</strong> in the Start menu</li>
+                <li>Open Windows Terminal and select <strong>Ubuntu</strong> from the tab dropdown</li>
+                <li>Type <code>wsl</code> in any PowerShell or Command Prompt window</li>
+                <li>Right-click a folder in File Explorer → <strong>"Open in Linux"</strong></li>
+              </ul>
+              <div class="callout callout-green">
+                <span class="callout-icon">📂</span>
+                <div>Your Windows files are accessible inside WSL at <code>/mnt/c/</code> (for C: drive). So <code>cd /mnt/c/Users/YourName/Desktop</code> takes you to your Windows Desktop.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===== FIRST STEPS ===== -->
+      <section class="install-section" id="first-steps">
+        <div class="section-header">
+          <div class="section-label">section 05</div>
+          <h2 class="section-title">First Steps After Install</h2>
+          <p class="section-desc">Essential commands to run right after setting up Ubuntu — whether on a full install or WSL.</p>
+        </div>
+
+        <div class="steps-wrap">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <div class="step-body">
+              <h3 class="step-title">Update the system</h3>
+              <div class="code-block">
+                <div class="code-label">bash</div>
+                <pre><code>sudo apt update && sudo apt upgrade -y</code></pre>
+                <button class="copy-snippet" data-code="sudo apt update && sudo apt upgrade -y">Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <div class="step-body">
+              <h3 class="step-title">Install essential tools</h3>
+              <div class="code-block">
+                <div class="code-label">bash</div>
+                <pre><code>sudo apt install -y curl wget git vim net-tools build-essential</code></pre>
+                <button class="copy-snippet" data-code="sudo apt install -y curl wget git vim net-tools build-essential">Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <div class="step-body">
+              <h3 class="step-title">Check your Ubuntu version</h3>
+              <div class="code-block">
+                <div class="code-label">bash</div>
+                <pre><code>lsb_release -a</code></pre>
+                <button class="copy-snippet" data-code="lsb_release -a">Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <div class="step-body">
+              <h3 class="step-title">Now learn Linux commands</h3>
+              <p>You're all set! Head back to the command reference and start practising.</p>
+              <a href="index.html" class="distro-link" style="display:inline-block;margin-top:0.75rem">← Go to Command Reference</a>
+              <a href="game.html" class="distro-link" style="display:inline-block;margin-top:0.75rem;margin-left:1rem">🎮 Play Bash Quest</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="auth.js"></script>
+  <script>Auth.logVisit('install.html');</script>
+
+  <script>
+    // Mobile sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      backdrop.classList.toggle('visible');
+    });
+    backdrop.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('visible');
+    });
+
+    // Copy snippet buttons
+    document.querySelectorAll('.copy-snippet').forEach(btn => {
+      btn.addEventListener('click', () => {
+        navigator.clipboard.writeText(btn.dataset.code).then(() => {
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

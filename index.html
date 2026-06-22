@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>linuxbyOBA — Learn the Command Line</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-bracket">[</span>linux<span class="logo-accent">byOBA</span><span class="logo-bracket">]</span>
+    </div>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="search commands or tasks..."
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Search commands"
+      />
+      <button class="search-clear" id="searchClear" aria-label="Clear search" hidden>✕</button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Command levels">
+      <div class="nav-section">
+        <span class="nav-label">// pages</span>
+        <ul>
+          <li><a href="index.html"   class="nav-link active-page"><span class="nav-bullet">▸</span> Commands</a></li>
+          <li><a href="bash.html"    class="nav-link"><span class="nav-bullet">▸</span> Bash Scripting</a></li>
+          <li><a href="install.html" class="nav-link"><span class="nav-bullet">▸</span> Install Linux</a></li>
+          <li><a href="game.html"    class="nav-link"><span class="nav-bullet">▸</span> 🎮 Bash Quest</a></li>
+          <li><a href="account.html" class="nav-link"><span class="nav-bullet">▸</span> 👤 Account</a></li>
+        </ul>
+      </div>
+      <div class="nav-section" id="levelNav">
+        <span class="nav-label">// command levels</span>
+        <ul>
+          <li><a href="#basics"        class="nav-link" data-section="basics">       <span class="nav-bullet">▸</span> Basics</a></li>
+          <li><a href="#intermediate"  class="nav-link" data-section="intermediate"> <span class="nav-bullet">▸</span> Intermediate</a></li>
+          <li><a href="#advanced"      class="nav-link" data-section="advanced">     <span class="nav-bullet">▸</span> Advanced</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">// commands</span>
+        <ul id="cmd-index"></ul>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer"><span>made for coursemates</span></div>
+  </aside>
+
+  <!-- Mobile header -->
+  <header class="mobile-header">
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">&#9776;</button>
+    <span class="mobile-title">[linuxdocs]</span>
+    <button class="mobile-search-btn" id="mobileSearchBtn" aria-label="Open search">⌕</button>
+  </header>
+
+  <!-- Mobile search bar (shown below header) -->
+  <div class="mobile-search-bar" id="mobileSearchBar">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="mobileSearchInput" class="search-input" placeholder="search commands or tasks..." autocomplete="off" spellcheck="false" />
+    <button class="search-clear" id="mobileSearchClear" aria-label="Clear" hidden>✕</button>
+  </div>
+
+  <!-- Main content -->
+  <main class="content" id="content">
+    <div class="content-inner">
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-tag">// documentation</div>
+        <h1 class="hero-title">Command Line<br /><span class="hero-accent">Reference</span></h1>
+        <p class="hero-desc">A structured guide to Linux, built for students — from basic navigation to system administration. Search by command name or plain English like "how to create a file".</p>
+        <div class="hero-status">
+          <span class="status-dot"></span>
+          <span id="heroCount">3 levels &nbsp;·&nbsp; 23 commands &nbsp;·&nbsp; interactive terminal (coming soon)</span>
+        </div>
+      </section>
+
+      <!-- Search results panel (hidden until active) -->
+      <section id="searchResults" class="search-results" hidden>
+        <div class="sr-header">
+          <span class="sr-label" id="srLabel">results</span>
+          <button class="sr-clear-btn" id="srClearBtn">✕ clear search</button>
+        </div>
+        <div id="srCards"></div>
+        <p class="sr-empty" id="srEmpty" hidden>No commands matched — try different words.</p>
+      </section>
+
+      <!-- ==================== BASICS ==================== -->
+      <section class="cmd-section" id="basics" data-level="basics">
+        <div class="section-header">
+          <div class="section-label">level 01</div>
+          <h2 class="section-title">Basics</h2>
+          <p class="section-desc">Navigation and file management — the foundation of everything you do on the command line.</p>
+        </div>
+
+        <!-- ls -->
+        <article class="cmd-card" id="cmd-ls"
+          data-keywords="list files directory show contents folder view what is in ls listing display">
+          <div class="cmd-header">
+            <code class="cmd-name">ls</code>
+            <span class="cmd-tag">list</span>
+          </div>
+          <p class="cmd-desc">Lists the contents of a directory. Without arguments, shows files in the current working directory.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>ls [OPTIONS] [PATH]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-l</code></td><td>Long format — shows permissions, owner, size, and date</td></tr>
+              <tr><td><code>-a</code></td><td>Show all files, including hidden ones (starting with .)</td></tr>
+              <tr><td><code>-h</code></td><td>Human-readable file sizes (use with <code>-l</code>)</td></tr>
+              <tr><td><code>-t</code></td><td>Sort by modification time, newest first</td></tr>
+              <tr><td><code>-R</code></td><td>Recursive — list subdirectories too</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>ls -la</code><span>Long list including hidden files</span></div>
+            <div class="example"><code>ls -lh /var/log</code><span>Human-readable sizes in /var/log</span></div>
+          </div>
+          <button class="try-btn" data-cmd="ls -la" aria-label="Try ls command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- cd -->
+        <article class="cmd-card" id="cmd-cd"
+          data-keywords="change directory navigate go into folder move enter path cd go to">
+          <div class="cmd-header">
+            <code class="cmd-name">cd</code>
+            <span class="cmd-tag">navigate</span>
+          </div>
+          <p class="cmd-desc">Change the current working directory. One of the most fundamental commands — you'll use it constantly.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>cd [PATH]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Shorthand</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>cd ~</code></td><td>Go to your home directory</td></tr>
+              <tr><td><code>cd ..</code></td><td>Go up one directory level</td></tr>
+              <tr><td><code>cd -</code></td><td>Switch back to the previous directory</td></tr>
+              <tr><td><code>cd /</code></td><td>Go to the root of the filesystem</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>cd ~/Documents</code><span>Move to Documents in home folder</span></div>
+            <div class="example"><code>cd ../../etc</code><span>Go up two levels, then into /etc</span></div>
+          </div>
+          <button class="try-btn" data-cmd="cd ~" aria-label="Try cd command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- pwd -->
+        <article class="cmd-card" id="cmd-pwd"
+          data-keywords="print working directory where am i current location path show location present">
+          <div class="cmd-header">
+            <code class="cmd-name">pwd</code>
+            <span class="cmd-tag">location</span>
+          </div>
+          <p class="cmd-desc">Print Working Directory — outputs the absolute path of your current location in the filesystem.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>pwd [OPTIONS]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-L</code></td><td>Print logical path (default), follows symlinks</td></tr>
+              <tr><td><code>-P</code></td><td>Print physical path, resolves symlinks to real path</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>pwd</code><span>Output: /home/username/projects</span></div>
+          </div>
+          <button class="try-btn" data-cmd="pwd" aria-label="Try pwd command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- touch -->
+        <article class="cmd-card" id="cmd-touch"
+          data-keywords="create file new file make file empty file touch how to create a file make a new file">
+          <div class="cmd-header">
+            <code class="cmd-name">touch</code>
+            <span class="cmd-tag">create</span>
+          </div>
+          <p class="cmd-desc">Creates an empty file, or updates the access and modification timestamps of an existing file. The easiest way to create a new blank file.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>touch [OPTIONS] FILE...</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-a</code></td><td>Update only the access time</td></tr>
+              <tr><td><code>-m</code></td><td>Update only the modification time</td></tr>
+              <tr><td><code>-t</code></td><td>Set a specific timestamp (format: YYYYMMDDhhmm)</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>touch notes.txt</code><span>Create a new empty file called notes.txt</span></div>
+            <div class="example"><code>touch index.html style.css app.js</code><span>Create multiple files at once</span></div>
+            <div class="example"><code>touch -t 202501010800 report.txt</code><span>Set file timestamp to Jan 1 2025, 08:00</span></div>
+          </div>
+          <button class="try-btn" data-cmd="touch newfile.txt && ls -l newfile.txt" aria-label="Try touch command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- mkdir -->
+        <article class="cmd-card" id="cmd-mkdir"
+          data-keywords="make directory create folder new folder mkdir how to make a folder create directory">
+          <div class="cmd-header">
+            <code class="cmd-name">mkdir</code>
+            <span class="cmd-tag">create</span>
+          </div>
+          <p class="cmd-desc">Make Directory — creates one or more new directories at the specified path.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>mkdir [OPTIONS] DIRECTORY...</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-p</code></td><td>Create parent directories as needed (no error if exists)</td></tr>
+              <tr><td><code>-m</code></td><td>Set file mode (permissions) at creation time</td></tr>
+              <tr><td><code>-v</code></td><td>Verbose — print a message for each created directory</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>mkdir -p projects/linux/labs</code><span>Create nested directories at once</span></div>
+            <div class="example"><code>mkdir -m 755 public_html</code><span>Create with specific permissions</span></div>
+          </div>
+          <button class="try-btn" data-cmd="mkdir -p myproject/src" aria-label="Try mkdir command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- cp -->
+        <article class="cmd-card" id="cmd-cp"
+          data-keywords="copy file duplicate files cp copy folder backup clone how to copy a file">
+          <div class="cmd-header">
+            <code class="cmd-name">cp</code>
+            <span class="cmd-tag">copy</span>
+          </div>
+          <p class="cmd-desc">Copy files or directories from one location to another. The original file is kept — a new copy is made at the destination.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>cp [OPTIONS] SOURCE DESTINATION</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-r</code></td><td>Recursive — required to copy directories</td></tr>
+              <tr><td><code>-i</code></td><td>Interactive — prompt before overwriting</td></tr>
+              <tr><td><code>-v</code></td><td>Verbose — show each file as it's copied</td></tr>
+              <tr><td><code>-p</code></td><td>Preserve timestamps, permissions, and owner</td></tr>
+              <tr><td><code>-u</code></td><td>Update — only copy if source is newer</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>cp report.txt report_backup.txt</code><span>Copy a file in the same directory</span></div>
+            <div class="example"><code>cp -r myproject/ /backup/myproject/</code><span>Copy an entire directory recursively</span></div>
+            <div class="example"><code>cp -pv *.conf /etc/myapp/</code><span>Copy all .conf files, preserving attributes</span></div>
+          </div>
+          <button class="try-btn" data-cmd="cp -v /etc/hostname ./hostname_copy" aria-label="Try cp command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- mv -->
+        <article class="cmd-card" id="cmd-mv"
+          data-keywords="move file rename file mv move directory relocate how to rename a file how to move">
+          <div class="cmd-header">
+            <code class="cmd-name">mv</code>
+            <span class="cmd-tag">move / rename</span>
+          </div>
+          <p class="cmd-desc">Move or rename files and directories. Unlike <code>cp</code>, the original is removed — it's cut, not copied.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>mv [OPTIONS] SOURCE DESTINATION</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-i</code></td><td>Prompt before overwriting an existing file</td></tr>
+              <tr><td><code>-v</code></td><td>Verbose — print what is being moved</td></tr>
+              <tr><td><code>-n</code></td><td>No-clobber — never overwrite destination</td></tr>
+              <tr><td><code>-u</code></td><td>Move only if source is newer than destination</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>mv oldname.txt newname.txt</code><span>Rename a file</span></div>
+            <div class="example"><code>mv report.txt ~/Documents/</code><span>Move file into a different directory</span></div>
+            <div class="example"><code>mv -i *.log /var/archive/</code><span>Move all logs with overwrite prompt</span></div>
+          </div>
+          <button class="try-btn" data-cmd="mv -v oldname.txt newname.txt" aria-label="Try mv command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- rm -->
+        <article class="cmd-card" id="cmd-rm"
+          data-keywords="remove delete file rm delete folder erase how to delete a file remove directory">
+          <div class="cmd-header">
+            <code class="cmd-name">rm</code>
+            <span class="cmd-tag danger-tag">destructive</span>
+          </div>
+          <p class="cmd-desc">Remove files or directories. <strong>Warning:</strong> there is no trash can — deleted files are gone permanently.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>rm [OPTIONS] FILE...</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-r</code></td><td>Recursive — required to delete directories</td></tr>
+              <tr><td><code>-f</code></td><td>Force — no prompts, ignores nonexistent files</td></tr>
+              <tr><td><code>-i</code></td><td>Interactive — prompt before every removal</td></tr>
+              <tr><td><code>-v</code></td><td>Verbose — print each file as it's removed</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>rm -ri old_project/</code><span>Remove directory with prompts (safer)</span></div>
+            <div class="example"><code>rm *.log</code><span>Remove all .log files in current dir</span></div>
+          </div>
+          <div class="cmd-warning">
+            <span class="warn-icon">!</span>
+            Never run <code>rm -rf /</code> — it deletes your entire root filesystem with no recovery.
+          </div>
+          <button class="try-btn" data-cmd="rm -i testfile.txt" aria-label="Try rm command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- echo -->
+        <article class="cmd-card" id="cmd-echo"
+          data-keywords="print text output write to file echo display string variable how to write to a file print message">
+          <div class="cmd-header">
+            <code class="cmd-name">echo</code>
+            <span class="cmd-tag">output</span>
+          </div>
+          <p class="cmd-desc">Print a line of text to the terminal or redirect it into a file. Commonly used in shell scripts to display messages or write content.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>echo [OPTIONS] [STRING...]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-n</code></td><td>Do not print the trailing newline</td></tr>
+              <tr><td><code>-e</code></td><td>Enable backslash escape sequences (e.g. \n, \t)</td></tr>
+              <tr><td><code>&gt;</code></td><td>Redirect output into a file (overwrites)</td></tr>
+              <tr><td><code>&gt;&gt;</code></td><td>Append output to a file</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>echo "Hello, World!"</code><span>Print text to terminal</span></div>
+            <div class="example"><code>echo "# My Project" &gt; README.md</code><span>Create a file with content</span></div>
+            <div class="example"><code>echo "new line" &gt;&gt; log.txt</code><span>Append to an existing file</span></div>
+          </div>
+          <button class="try-btn" data-cmd='echo "Hello from Linux!"' aria-label="Try echo command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+      </section>
+
+      <!-- ==================== INTERMEDIATE ==================== -->
+      <section class="cmd-section" id="intermediate" data-level="intermediate">
+        <div class="section-header">
+          <div class="section-label">level 02</div>
+          <h2 class="section-title">Intermediate</h2>
+          <p class="section-desc">Text processing and search — tools that let you find, filter, and understand data inside files.</p>
+        </div>
+
+        <!-- grep -->
+        <article class="cmd-card" id="cmd-grep"
+          data-keywords="search text find pattern grep filter content inside file look for word search in file regex">
+          <div class="cmd-header">
+            <code class="cmd-name">grep</code>
+            <span class="cmd-tag">search</span>
+          </div>
+          <p class="cmd-desc">Global Regular Expression Print — searches for patterns in files or input streams. Possibly the most powerful text-search tool on Linux.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>grep [OPTIONS] PATTERN [FILE...]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-i</code></td><td>Case-insensitive search</td></tr>
+              <tr><td><code>-r</code></td><td>Recursive search through directories</td></tr>
+              <tr><td><code>-n</code></td><td>Show line numbers for each match</td></tr>
+              <tr><td><code>-v</code></td><td>Invert match — show lines that do NOT match</td></tr>
+              <tr><td><code>-l</code></td><td>List only filenames that contain a match</td></tr>
+              <tr><td><code>-c</code></td><td>Count the number of matching lines</td></tr>
+              <tr><td><code>-E</code></td><td>Extended regex (same as <code>egrep</code>)</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>grep -rn "TODO" ./src</code><span>Find all TODO comments in a project</span></div>
+            <div class="example"><code>grep -i "error" /var/log/syslog</code><span>Case-insensitive error search in logs</span></div>
+            <div class="example"><code>cat app.log | grep -v "DEBUG"</code><span>Show log lines that aren't DEBUG</span></div>
+          </div>
+          <button class="try-btn" data-cmd='grep -n "root" /etc/passwd' aria-label="Try grep command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- cat -->
+        <article class="cmd-card" id="cmd-cat"
+          data-keywords="read file view contents cat display file print file show file content concatenate">
+          <div class="cmd-header">
+            <code class="cmd-name">cat</code>
+            <span class="cmd-tag">read</span>
+          </div>
+          <p class="cmd-desc">Concatenate and print files. Used to view file contents, combine multiple files, or create files from terminal input.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>cat [OPTIONS] [FILE...]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-n</code></td><td>Number all output lines</td></tr>
+              <tr><td><code>-b</code></td><td>Number non-blank lines only</td></tr>
+              <tr><td><code>-A</code></td><td>Show all special characters (tabs, line endings)</td></tr>
+              <tr><td><code>-s</code></td><td>Squeeze consecutive blank lines into one</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>cat /etc/os-release</code><span>View system OS information</span></div>
+            <div class="example"><code>cat file1.txt file2.txt &gt; merged.txt</code><span>Combine two files into one</span></div>
+          </div>
+          <button class="try-btn" data-cmd="cat /etc/hostname" aria-label="Try cat command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- find -->
+        <article class="cmd-card" id="cmd-find"
+          data-keywords="find file search file locate file find directory look for file search by name how to find a file">
+          <div class="cmd-header">
+            <code class="cmd-name">find</code>
+            <span class="cmd-tag">search</span>
+          </div>
+          <p class="cmd-desc">Search for files and directories in a directory hierarchy based on name, type, size, permissions, modification time, and more.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>find [PATH] [EXPRESSION]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Expression</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-name</code></td><td>Match filename (case-sensitive)</td></tr>
+              <tr><td><code>-iname</code></td><td>Match filename (case-insensitive)</td></tr>
+              <tr><td><code>-type f</code></td><td>Match regular files only</td></tr>
+              <tr><td><code>-type d</code></td><td>Match directories only</td></tr>
+              <tr><td><code>-size +10M</code></td><td>Files larger than 10 megabytes</td></tr>
+              <tr><td><code>-mtime -7</code></td><td>Modified in the last 7 days</td></tr>
+              <tr><td><code>-exec</code></td><td>Execute a command on each result</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>find . -name "*.sh" -type f</code><span>Find all shell scripts from here</span></div>
+            <div class="example"><code>find /home -size +100M</code><span>Find files over 100MB in /home</span></div>
+            <div class="example"><code>find . -name "*.log" -exec rm {} \;</code><span>Delete all .log files found</span></div>
+          </div>
+          <button class="try-btn" data-cmd="find /etc -name '*.conf' -type f" aria-label="Try find command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- wc -->
+        <article class="cmd-card" id="cmd-wc"
+          data-keywords="count lines words characters wc word count how many lines file size bytes">
+          <div class="cmd-header">
+            <code class="cmd-name">wc</code>
+            <span class="cmd-tag">count</span>
+          </div>
+          <p class="cmd-desc">Word Count — counts lines, words, and bytes in files. Extremely useful when piped with other commands.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>wc [OPTIONS] [FILE...]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-l</code></td><td>Count lines only</td></tr>
+              <tr><td><code>-w</code></td><td>Count words only</td></tr>
+              <tr><td><code>-c</code></td><td>Count bytes</td></tr>
+              <tr><td><code>-m</code></td><td>Count characters</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>wc -l /etc/passwd</code><span>Count user accounts in passwd file</span></div>
+            <div class="example"><code>ls /etc | wc -l</code><span>Count files in /etc using a pipe</span></div>
+          </div>
+          <button class="try-btn" data-cmd="wc -l /etc/passwd" aria-label="Try wc command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- sort -->
+        <article class="cmd-card" id="cmd-sort"
+          data-keywords="sort lines alphabetical order sort file sort output order sort numbers reverse">
+          <div class="cmd-header">
+            <code class="cmd-name">sort</code>
+            <span class="cmd-tag">text</span>
+          </div>
+          <p class="cmd-desc">Sort lines of text files alphabetically or numerically. Commonly piped with other commands to organise output.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>sort [OPTIONS] [FILE...]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-n</code></td><td>Sort numerically instead of alphabetically</td></tr>
+              <tr><td><code>-r</code></td><td>Reverse the sort order</td></tr>
+              <tr><td><code>-u</code></td><td>Unique — remove duplicate lines</td></tr>
+              <tr><td><code>-k N</code></td><td>Sort by column number N</td></tr>
+              <tr><td><code>-t</code></td><td>Specify a field delimiter character</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>sort names.txt</code><span>Sort names alphabetically</span></div>
+            <div class="example"><code>sort -rn sizes.txt</code><span>Sort numbers from largest to smallest</span></div>
+            <div class="example"><code>cat /etc/passwd | sort -t: -k3 -n</code><span>Sort passwd by UID (column 3)</span></div>
+          </div>
+          <button class="try-btn" data-cmd="ls /etc | sort" aria-label="Try sort command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- head & tail -->
+        <article class="cmd-card" id="cmd-head"
+          data-keywords="head first lines top file beginning read top of file first 10 lines preview">
+          <div class="cmd-header">
+            <code class="cmd-name">head</code>
+            <span class="cmd-tag">read</span>
+          </div>
+          <p class="cmd-desc">Output the first N lines of a file (default 10). Great for peeking at large files without loading them entirely.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>head [OPTIONS] [FILE...]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-n N</code></td><td>Output the first N lines (default: 10)</td></tr>
+              <tr><td><code>-c N</code></td><td>Output the first N bytes</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>head -n 5 README.md</code><span>Show the first 5 lines of a file</span></div>
+            <div class="example"><code>head -n 20 /var/log/syslog</code><span>Preview first 20 log lines</span></div>
+          </div>
+          <button class="try-btn" data-cmd="head -n 5 /etc/passwd" aria-label="Try head command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <article class="cmd-card" id="cmd-tail"
+          data-keywords="tail last lines end file follow log live log monitor log file realtime">
+          <div class="cmd-header">
+            <code class="cmd-name">tail</code>
+            <span class="cmd-tag">read</span>
+          </div>
+          <p class="cmd-desc">Output the last N lines of a file. With <code>-f</code>, it follows the file in real-time — essential for monitoring live logs.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>tail [OPTIONS] [FILE...]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-n N</code></td><td>Show last N lines (default: 10)</td></tr>
+              <tr><td><code>-f</code></td><td>Follow — watch file for new content in real-time</td></tr>
+              <tr><td><code>-F</code></td><td>Like -f but retries if file is rotated/renamed</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>tail -n 50 /var/log/auth.log</code><span>Last 50 lines of auth log</span></div>
+            <div class="example"><code>tail -f /var/log/nginx/access.log</code><span>Watch web server logs live</span></div>
+          </div>
+          <button class="try-btn" data-cmd="tail -n 5 /etc/passwd" aria-label="Try tail command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- pipe -->
+        <article class="cmd-card" id="cmd-pipe"
+          data-keywords="pipe combine commands pipe output redirect chain commands | filter output together">
+          <div class="cmd-header">
+            <code class="cmd-name">|&nbsp;&nbsp;(pipe)</code>
+            <span class="cmd-tag">operator</span>
+          </div>
+          <p class="cmd-desc">The pipe operator sends the output of one command as the input to another. It's how you chain Linux tools together to build powerful one-liners.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>command1 | command2 | command3</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Pattern</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><code>cmd | grep</code></td><td>Filter output for matching lines</td></tr>
+              <tr><td><code>cmd | sort</code></td><td>Sort the output</td></tr>
+              <tr><td><code>cmd | wc -l</code></td><td>Count the lines of output</td></tr>
+              <tr><td><code>cmd | head</code></td><td>Show only the first few lines</td></tr>
+              <tr><td><code>cmd | tee file</code></td><td>Show output AND save it to a file</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>ls -la | grep ".sh"</code><span>List only shell script files</span></div>
+            <div class="example"><code>cat /etc/passwd | cut -d: -f1 | sort</code><span>List all usernames sorted</span></div>
+            <div class="example"><code>ps aux | grep nginx | wc -l</code><span>Count nginx processes running</span></div>
+          </div>
+          <button class="try-btn" data-cmd="ls /etc | grep '.conf' | wc -l" aria-label="Try pipe operator"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+      </section>
+
+      <!-- ==================== ADVANCED ==================== -->
+      <section class="cmd-section" id="advanced" data-level="advanced">
+        <div class="section-header">
+          <div class="section-label">level 03</div>
+          <h2 class="section-title">Advanced</h2>
+          <p class="section-desc">System administration and security — permissions, process monitoring, networking, and automation.</p>
+        </div>
+
+        <!-- chmod -->
+        <article class="cmd-card" id="cmd-chmod"
+          data-keywords="change permissions file chmod make executable read write execute 755 644 permission bits">
+          <div class="cmd-header">
+            <code class="cmd-name">chmod</code>
+            <span class="cmd-tag">permissions</span>
+          </div>
+          <p class="cmd-desc">Change file mode bits — controls who can read, write, or execute a file. Uses either symbolic (rwx) or octal (755) notation.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>chmod [OPTIONS] MODE FILE...</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Concept</th><th>Explanation</th></tr></thead>
+            <tbody>
+              <tr><td><code>u / g / o / a</code></td><td>User / Group / Others / All</td></tr>
+              <tr><td><code>+ / - / =</code></td><td>Add / Remove / Set exact permission</td></tr>
+              <tr><td><code>r / w / x</code></td><td>Read / Write / Execute bits</td></tr>
+              <tr><td><code>755</code></td><td>Owner: rwx, Group: r-x, Others: r-x</td></tr>
+              <tr><td><code>644</code></td><td>Owner: rw-, Group: r--, Others: r--</td></tr>
+              <tr><td><code>-R</code></td><td>Apply recursively to all files/dirs inside</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>chmod +x deploy.sh</code><span>Make a script executable</span></div>
+            <div class="example"><code>chmod 644 config.json</code><span>Owner writes, everyone else reads</span></div>
+            <div class="example"><code>chmod -R 755 public/</code><span>Set permissions on entire directory</span></div>
+          </div>
+          <button class="try-btn" data-cmd="chmod +x myscript.sh && ls -l myscript.sh" aria-label="Try chmod command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- chown -->
+        <article class="cmd-card" id="cmd-chown"
+          data-keywords="change owner group chown file ownership user group assign owner transfer ownership">
+          <div class="cmd-header">
+            <code class="cmd-name">chown</code>
+            <span class="cmd-tag">permissions</span>
+          </div>
+          <p class="cmd-desc">Change file owner and group. Useful in multi-user environments and when deploying applications that need to run as a specific system user.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>chown [OPTIONS] OWNER[:GROUP] FILE...</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-R</code></td><td>Recursively change ownership</td></tr>
+              <tr><td><code>-v</code></td><td>Verbose — show each changed file</td></tr>
+              <tr><td><code>--reference</code></td><td>Use ownership from a reference file</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>chown alice report.txt</code><span>Give alice ownership of report.txt</span></div>
+            <div class="example"><code>chown www-data:www-data /var/www</code><span>Set webserver ownership</span></div>
+            <div class="example"><code>chown -R ubuntu:ubuntu /opt/app</code><span>Recursively set app ownership</span></div>
+          </div>
+          <button class="try-btn" data-cmd="ls -l /var/www/html" aria-label="Try chown command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- top -->
+        <article class="cmd-card" id="cmd-top"
+          data-keywords="monitor processes cpu memory usage top running processes kill process system resources task manager">
+          <div class="cmd-header">
+            <code class="cmd-name">top</code>
+            <span class="cmd-tag">monitor</span>
+          </div>
+          <p class="cmd-desc">Real-time process viewer — shows CPU, memory usage, load averages, and all running processes. An interactive dashboard for your system.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>top [OPTIONS]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Key / Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-d N</code></td><td>Refresh interval in seconds (default: 3)</td></tr>
+              <tr><td><code>-u USER</code></td><td>Show only processes for a specific user</td></tr>
+              <tr><td><code>q</code></td><td>Quit top (interactive key)</td></tr>
+              <tr><td><code>k</code></td><td>Kill a process by PID (interactive key)</td></tr>
+              <tr><td><code>M</code></td><td>Sort by memory usage (interactive key)</td></tr>
+              <tr><td><code>P</code></td><td>Sort by CPU usage (interactive key)</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>top -d 1 -u www-data</code><span>Monitor webserver processes every second</span></div>
+            <div class="example"><code>htop</code><span>A friendlier alternative (install separately)</span></div>
+          </div>
+          <button class="try-btn" data-cmd="top -bn1 | head -20" aria-label="Try top command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- ps -->
+        <article class="cmd-card" id="cmd-ps"
+          data-keywords="list processes ps running processes show process id pid who is running check background process">
+          <div class="cmd-header">
+            <code class="cmd-name">ps</code>
+            <span class="cmd-tag">processes</span>
+          </div>
+          <p class="cmd-desc">Process Status — shows a snapshot of currently running processes. Unlike <code>top</code>, it's not interactive — you get a one-time list.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>ps [OPTIONS]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>aux</code></td><td>Show all processes for all users (most common)</td></tr>
+              <tr><td><code>-e</code></td><td>Show every process</td></tr>
+              <tr><td><code>-f</code></td><td>Full-format listing with parent PID</td></tr>
+              <tr><td><code>-u USER</code></td><td>Show processes owned by a specific user</td></tr>
+              <tr><td><code>--pid N</code></td><td>Show only process with PID N</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>ps aux</code><span>Show all running processes</span></div>
+            <div class="example"><code>ps aux | grep nginx</code><span>Check if nginx is running</span></div>
+            <div class="example"><code>ps -ef --forest</code><span>Show process tree with parent/child relations</span></div>
+          </div>
+          <button class="try-btn" data-cmd="ps aux | head -15" aria-label="Try ps command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- kill -->
+        <article class="cmd-card" id="cmd-kill"
+          data-keywords="kill process stop process terminate kill pid end process force quit stop program">
+          <div class="cmd-header">
+            <code class="cmd-name">kill</code>
+            <span class="cmd-tag danger-tag">destructive</span>
+          </div>
+          <p class="cmd-desc">Send a signal to a process — most commonly used to terminate unresponsive programs by their Process ID (PID).</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>kill [SIGNAL] PID</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Signal</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-15 (SIGTERM)</code></td><td>Graceful shutdown request (default)</td></tr>
+              <tr><td><code>-9 (SIGKILL)</code></td><td>Force-kill immediately — cannot be ignored</td></tr>
+              <tr><td><code>-1 (SIGHUP)</code></td><td>Hang up — often used to reload config</td></tr>
+              <tr><td><code>-2 (SIGINT)</code></td><td>Interrupt — same as pressing Ctrl+C</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>kill 1234</code><span>Gracefully stop process with PID 1234</span></div>
+            <div class="example"><code>kill -9 1234</code><span>Force-kill a frozen process</span></div>
+            <div class="example"><code>pkill -9 firefox</code><span>Kill all processes named "firefox"</span></div>
+          </div>
+          <div class="cmd-warning">
+            <span class="warn-icon">!</span>
+            Always try <code>kill PID</code> (SIGTERM) first. Use <code>kill -9</code> only when the process won't respond — it skips cleanup and can corrupt data.
+          </div>
+          <button class="try-btn" data-cmd="kill -l" aria-label="Try kill command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- ss -->
+        <article class="cmd-card" id="cmd-ss"
+          data-keywords="network sockets ports open ports listening connections netstat ss show open ports check network">
+          <div class="cmd-header">
+            <code class="cmd-name">ss</code>
+            <span class="cmd-tag">network</span>
+          </div>
+          <p class="cmd-desc">Socket Statistics — a faster replacement for <code>netstat</code>. Shows open ports, active connections, and listening services on your machine.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>ss [OPTIONS] [FILTER]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-t</code></td><td>Show TCP sockets</td></tr>
+              <tr><td><code>-u</code></td><td>Show UDP sockets</td></tr>
+              <tr><td><code>-l</code></td><td>Show listening sockets only</td></tr>
+              <tr><td><code>-n</code></td><td>Numeric — don't resolve hostnames/ports</td></tr>
+              <tr><td><code>-p</code></td><td>Show the process name using the socket</td></tr>
+              <tr><td><code>-a</code></td><td>Show all (listening + non-listening)</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>ss -tlnp</code><span>See what's listening and which process owns it</span></div>
+            <div class="example"><code>ss -tn state established</code><span>Show active TCP connections</span></div>
+            <div class="example"><code>ss -u -a</code><span>All UDP sockets</span></div>
+          </div>
+          <button class="try-btn" data-cmd="ss -tlnp" aria-label="Try ss command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- df -->
+        <article class="cmd-card" id="cmd-df"
+          data-keywords="disk space disk usage df free space storage check how much space is left filesystem mount">
+          <div class="cmd-header">
+            <code class="cmd-name">df</code>
+            <span class="cmd-tag">disk</span>
+          </div>
+          <p class="cmd-desc">Disk Free — reports the amount of disk space used and available on all mounted filesystems.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>df [OPTIONS] [FILESYSTEM...]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-h</code></td><td>Human-readable sizes (KB, MB, GB)</td></tr>
+              <tr><td><code>-T</code></td><td>Show filesystem type (ext4, tmpfs, etc.)</td></tr>
+              <tr><td><code>-i</code></td><td>Show inode usage instead of block usage</td></tr>
+              <tr><td><code>--total</code></td><td>Add a grand total line at the end</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>df -h</code><span>Show disk usage in human-readable format</span></div>
+            <div class="example"><code>df -hT /home</code><span>Show type and space for /home partition</span></div>
+          </div>
+          <button class="try-btn" data-cmd="df -h" aria-label="Try df command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- du -->
+        <article class="cmd-card" id="cmd-du"
+          data-keywords="disk usage folder size du how much space does folder use directory size check size of files">
+          <div class="cmd-header">
+            <code class="cmd-name">du</code>
+            <span class="cmd-tag">disk</span>
+          </div>
+          <p class="cmd-desc">Disk Usage — estimates the space used by files and directories. While <code>df</code> shows whole filesystems, <code>du</code> drills into individual folders.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>du [OPTIONS] [PATH...]</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-h</code></td><td>Human-readable output</td></tr>
+              <tr><td><code>-s</code></td><td>Summary — show only the total for each argument</td></tr>
+              <tr><td><code>-a</code></td><td>Show size of all files, not just directories</td></tr>
+              <tr><td><code>--max-depth=N</code></td><td>Limit how deep the output goes</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>du -sh ~/Downloads</code><span>Total size of your Downloads folder</span></div>
+            <div class="example"><code>du -h --max-depth=1 /var</code><span>Top-level sizes inside /var</span></div>
+            <div class="example"><code>du -ah . | sort -rh | head -10</code><span>Top 10 largest files/dirs here</span></div>
+          </div>
+          <button class="try-btn" data-cmd="du -sh /etc" aria-label="Try du command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- cron / crontab -->
+        <article class="cmd-card" id="cmd-crontab"
+          data-keywords="schedule task automate cron crontab schedule script run automatically timer job repeat task every hour daily">
+          <div class="cmd-header">
+            <code class="cmd-name">crontab</code>
+            <span class="cmd-tag">automation</span>
+          </div>
+          <p class="cmd-desc">Schedule tasks to run automatically at set times using the cron daemon. Each line in a crontab is a scheduled job with a time pattern and a command.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>MIN HOUR DAY MON DOW command</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>crontab flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-e</code></td><td>Edit your crontab in the default editor</td></tr>
+              <tr><td><code>-l</code></td><td>List your current scheduled jobs</td></tr>
+              <tr><td><code>-r</code></td><td>Remove (delete) your crontab entirely</td></tr>
+              <tr><td><code>-u USER</code></td><td>Operate on another user's crontab (root only)</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>0 2 * * * /opt/backup.sh</code><span>Run backup script every day at 2am</span></div>
+            <div class="example"><code>*/15 * * * * /usr/bin/checkhealth.sh</code><span>Run every 15 minutes</span></div>
+            <div class="example"><code>0 9 * * 1 /opt/weekly_report.sh</code><span>Every Monday at 9am</span></div>
+          </div>
+          <button class="try-btn" data-cmd="crontab -l" aria-label="Try crontab command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- ssh -->
+        <article class="cmd-card" id="cmd-ssh"
+          data-keywords="ssh remote login connect server remote access secure shell login to server connect to machine key">
+          <div class="cmd-header">
+            <code class="cmd-name">ssh</code>
+            <span class="cmd-tag">network</span>
+          </div>
+          <p class="cmd-desc">Secure Shell — opens an encrypted remote terminal session to another machine. The primary tool for administering Linux servers.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>ssh [OPTIONS] user@host</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-i FILE</code></td><td>Use a specific private key file</td></tr>
+              <tr><td><code>-p PORT</code></td><td>Connect on a non-default port (default: 22)</td></tr>
+              <tr><td><code>-L</code></td><td>Local port forwarding (tunnel)</td></tr>
+              <tr><td><code>-v</code></td><td>Verbose — useful for debugging connection issues</td></tr>
+              <tr><td><code>-N</code></td><td>No command — just forward ports, don't open shell</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>ssh ubuntu@192.168.1.10</code><span>Connect to a server with password auth</span></div>
+            <div class="example"><code>ssh -i ~/.ssh/mykey.pem ec2-user@host</code><span>Connect using an SSH key (AWS style)</span></div>
+            <div class="example"><code>ssh -p 2222 admin@myserver.com</code><span>Connect on a custom port</span></div>
+          </div>
+          <button class="try-btn" data-cmd="ssh -V" aria-label="Try ssh command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+        <!-- curl -->
+        <article class="cmd-card" id="cmd-curl"
+          data-keywords="http request curl download url api request get post fetch data web request download file from url">
+          <div class="cmd-header">
+            <code class="cmd-name">curl</code>
+            <span class="cmd-tag">network</span>
+          </div>
+          <p class="cmd-desc">Transfer data from or to a server using URLs. Used for making HTTP requests, testing APIs, and downloading files from the command line.</p>
+          <div class="cmd-syntax">
+            <div class="syntax-label">syntax</div>
+            <pre><code>curl [OPTIONS] URL</code></pre>
+          </div>
+          <table class="flags-table">
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>-o FILE</code></td><td>Save output to a file</td></tr>
+              <tr><td><code>-O</code></td><td>Save with the remote filename</td></tr>
+              <tr><td><code>-X METHOD</code></td><td>HTTP method: GET, POST, PUT, DELETE</td></tr>
+              <tr><td><code>-H</code></td><td>Add a request header</td></tr>
+              <tr><td><code>-d DATA</code></td><td>Send POST data</td></tr>
+              <tr><td><code>-s</code></td><td>Silent — suppress progress/error output</td></tr>
+              <tr><td><code>-L</code></td><td>Follow redirects</td></tr>
+            </tbody>
+          </table>
+          <div class="cmd-examples">
+            <div class="example"><code>curl https://api.github.com</code><span>Make a GET request to the GitHub API</span></div>
+            <div class="example"><code>curl -O https://example.com/file.tar.gz</code><span>Download a file</span></div>
+            <div class="example"><code>curl -X POST -d "user=admin" http://localhost/login</code><span>Send a POST request</span></div>
+          </div>
+          <button class="try-btn" data-cmd="curl -s https://api.github.com | head -10" aria-label="Try curl command"><span class="try-icon">▶</span> Try It</button>
+        </article>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Try It modal -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <span id="modalTitle">Terminal — <code id="modalCmd"></code></span>
+        <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="terminal-window">
+          <div class="terminal-bar">
+            <span class="t-dot red"></span>
+            <span class="t-dot yellow"></span>
+            <span class="t-dot green"></span>
+            <span class="terminal-title">bash</span>
+          </div>
+          <div class="terminal-screen" id="terminalScreen">
+            <p class="term-line"><span class="prompt">user@linux:~$</span> <span id="terminalCmdDisplay"></span></p>
+            <p class="term-output" id="terminalOutput"></p>
+            <div class="term-notice">
+              <strong>Want a real, working terminal right now?</strong>
+              <p>This free sandbox runs actual bash on a real Linux container — try <code>ls</code>, <code>grep</code>, <code>sed</code>, <code>awk</code>, loops, and more, with genuine output. No sign-up required.</p>
+              <a href="https://coddy.tech/playground/terminal" target="_blank" rel="noopener" class="term-notice-btn">Open Live Terminal ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span class="modal-hint">Press <kbd>Esc</kbd> to close</span>
+        <button class="copy-btn" id="copyCmd">Copy Command</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>Auth.logVisit('index.html');</script>
+  <script src="main.js"></script>
+</body>
+</html>

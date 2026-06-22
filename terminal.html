@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terminal — linuxbyOBA</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@6.0.0/css/xterm.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    .term-wrap {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1.5rem 4rem;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(0,230,118,0.03) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(79,195,247,0.04) 0%, transparent 50%),
+        var(--bg);
+    }
+    .term-container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .term-title-bar { text-align: center; padding: 1.5rem 0 0.5rem; }
+    .term-pretitle {
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--green);
+      letter-spacing: 0.15em; margin-bottom: 0.5rem;
+    }
+    .term-title {
+      font-family: var(--font-mono); font-size: clamp(1.6rem, 4vw, 2.3rem);
+      font-weight: 900; color: var(--text-hi); letter-spacing: -0.02em;
+    }
+    .term-title span { color: var(--green); }
+    .term-subtitle { font-size: 0.88rem; color: var(--text-dim); margin-top: 0.5rem; line-height: 1.5; }
+
+    .notice-banner {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      background: rgba(255,203,107,0.07); border: 1px solid rgba(255,203,107,0.25);
+      border-radius: var(--radius); padding: 0.85rem 1.1rem;
+      font-size: 0.85rem; color: #e8cfa0; line-height: 1.6;
+    }
+    .notice-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .notice-banner a { color: var(--cyan); }
+
+    .term-panel {
+      background: #0a0c10;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .term-panel-header {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--bg-card); border-bottom: 1px solid var(--border);
+      padding: 0.6rem 0.9rem;
+    }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .term-dot.red { background: #ff5f56; }
+    .term-dot.amber { background: #ffbd2e; }
+    .term-dot.green { background: #27c93f; }
+    .term-panel-title {
+      font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);
+      margin-left: 0.5rem;
+    }
+
+    #xterm-container { padding: 0.75rem; min-height: 420px; }
+
+    .term-tips {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.1rem 1.3rem;
+      font-size: 0.84rem; color: var(--text-dim); line-height: 1.7;
+    }
+    .term-tips strong { color: var(--text-hi); }
+    .term-tips code {
+      font-family: var(--font-mono); font-size: 0.8rem; color: var(--amber);
+      background: rgba(255,203,107,0.07); padding: 0.05rem 0.3rem; border-radius: 3px;
+    }
+    .term-tips a { color: var(--cyan); }
+
+    .real-term-card {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      background: rgba(0,230,118,0.06); border: 1px solid rgba(0,230,118,0.25);
+      border-radius: var(--radius-lg); padding: 1.1rem 1.3rem;
+    }
+    .real-term-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .real-term-body { flex: 1; min-width: 220px; }
+    .real-term-title {
+      font-family: var(--font-mono); font-size: 0.92rem; font-weight: 700;
+      color: var(--text-hi); margin-bottom: 0.35rem;
+    }
+    .real-term-body p { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; }
+    .real-term-body code {
+      font-family: var(--font-mono); font-size: 0.78rem; color: var(--amber);
+      background: rgba(255,203,107,0.08); padding: 0.05rem 0.3rem; border-radius: 3px;
+    }
+    .real-term-btn {
+      font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700;
+      color: #000; background: var(--green); border-radius: var(--radius);
+      padding: 0.6rem 1.2rem; text-decoration: none; white-space: nowrap; flex-shrink: 0;
+    }
+    .real-term-btn:hover { opacity: 0.88; text-decoration: none; }
+
+    @media (max-width: 768px) {
+      .term-wrap { margin-left: 0; padding-top: 68px; padding-left: 0.75rem; padding-right: 0.75rem; }
+      #xterm-container { min-height: 320px; }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-bracket">[</span>linux<span class="logo-accent">byOBA</span><span class="logo-bracket">]</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <span class="nav-label">// navigation</span>
+        <ul>
+          <li><a href="index.html"    class="nav-link"><span class="nav-bullet">▸</span> Commands</a></li>
+          <li><a href="bash.html"     class="nav-link"><span class="nav-bullet">▸</span> Bash Scripting</a></li>
+          <li><a href="install.html"  class="nav-link"><span class="nav-bullet">▸</span> Install Linux</a></li>
+          <li><a href="game.html"     class="nav-link"><span class="nav-bullet">▸</span> 🎮 Bash Quest</a></li>
+          <li><a href="terminal.html" class="nav-link active"><span class="nav-bullet">▸</span> 🖥️ Terminal</a></li>
+          <li><a href="account.html"  class="nav-link"><span class="nav-bullet">▸</span> 👤 Account</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="sidebar-footer"><span>practice in a real shell</span></div>
+  </aside>
+
+  <header class="mobile-header">
+    <button class="menu-toggle" id="menuToggle">&#9776;</button>
+    <span class="mobile-title">🖥️ Terminal</span>
+  </header>
+
+  <div class="term-wrap">
+    <div class="term-container">
+
+      <div class="term-title-bar">
+        <div class="term-pretitle">// in-browser linux terminal</div>
+        <h1 class="term-title">Live <span>Terminal</span> 🖥️</h1>
+        <p class="term-subtitle">A real terminal emulator, right in your browser. Practice the commands you're learning.</p>
+      </div>
+
+      <div class="notice-banner">
+        <span class="notice-icon">⚠️</span>
+        <span>Interactive terminal coming soon. This panel below is currently a display-only preview powered by <a href="https://xtermjs.org/" target="_blank" rel="noopener">xterm.js</a> — it isn't connected to a real Linux shell yet, so typed commands won't execute. Want to run real commands right now? Use the live sandbox below instead.</span>
+      </div>
+
+      <div class="term-panel">
+        <div class="term-panel-header">
+          <span class="term-dot red"></span>
+          <span class="term-dot amber"></span>
+          <span class="term-dot green"></span>
+          <span class="term-panel-title">guest@linuxbyoba: ~ (preview)</span>
+        </div>
+        <div id="xterm-container"></div>
+      </div>
+
+      <div class="real-term-card">
+        <div class="real-term-icon">✅</div>
+        <div class="real-term-body">
+          <div class="real-term-title">Want a real, working terminal right now?</div>
+          <p>This free sandbox runs actual bash on a real Linux container — try <code>ls</code>, <code>grep</code>, <code>sed</code>, <code>awk</code>, loops, and more, with genuine output. No sign-up required.</p>
+        </div>
+        <a href="https://coddy.tech/playground/terminal" target="_blank" rel="noopener" class="real-term-btn">Open Live Terminal ↗</a>
+      </div>
+
+      <div class="term-tips">
+        <strong>📖 What's working right now:</strong> the preview panel above renders, accepts keystrokes, and supports basic line editing (backspace, enter) just like a real shell prompt — but commands typed there aren't actually executed anywhere. The "Open Live Terminal" button above runs real commands instead. You can also head over to <a href="game.html">Bash Quest</a> to practice commands interactively, or check the <a href="index.html">Commands</a> and <a href="bash.html">Bash Scripting</a> reference pages.
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@6.0.0/lib/xterm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.js"></script>
+  <script src="auth.js"></script>
+  <script>
+  (function(){
+    Auth.logVisit('terminal.html');
+
+    const term = new Terminal({
+      cursorBlink: true,
+      fontFamily: "'Courier New', 'Cascadia Code', 'Fira Code', monospace",
+      fontSize: 14,
+      theme: {
+        background: '#0a0c10',
+        foreground: '#cdd6f4',
+        cursor: '#00e676',
+        cursorAccent: '#0a0c10',
+        selectionBackground: 'rgba(79,195,247,0.25)',
+        black: '#0d0f12',
+        red: '#ff5370',
+        green: '#00e676',
+        yellow: '#ffcb6b',
+        blue: '#4fc3f7',
+        magenta: '#c792ea',
+        cyan: '#4fc3f7',
+        white: '#cdd6f4',
+        brightBlack: '#6c7a96',
+        brightRed: '#ff8fa3',
+        brightGreen: '#69f0ae',
+        brightYellow: '#ffe082',
+        brightBlue: '#82d4fb',
+        brightMagenta: '#e0b8ff',
+        brightCyan: '#82d4fb',
+        brightWhite: '#e2e8f0',
+      },
+    });
+
+    const fitAddon = new FitAddon.FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(document.getElementById('xterm-container'));
+    fitAddon.fit();
+    window.addEventListener('resize', () => fitAddon.fit());
+
+    const PROMPT = '\r\n\x1b[1;32mguest@linuxbyoba\x1b[0m:\x1b[1;34m~\x1b[0m$ ';
+
+    function writeWelcome() {
+      term.writeln('\x1b[1;33m⚠ Interactive terminal coming soon.\x1b[0m');
+      term.writeln('Hook up xterm.js to a real backend to make this live.');
+      term.writeln('');
+      term.writeln('This preview accepts keystrokes but does not execute commands yet.');
+      term.write(PROMPT);
+    }
+
+    let line = '';
+    term.onData(data => {
+      const code = data.charCodeAt(0);
+      if (data === '\r') { // Enter
+        term.write('\r\n');
+        if (line.trim().length > 0) {
+          term.writeln('\x1b[2;37mcommand not executed — terminal backend not connected yet\x1b[0m');
+        }
+        line = '';
+        term.write(PROMPT);
+      } else if (code === 127) { // Backspace
+        if (line.length > 0) {
+          line = line.slice(0, -1);
+          term.write('\b \b');
+        }
+      } else if (code < 32) {
+        // ignore other control characters for this preview
+      } else {
+        line += data;
+        term.write(data);
+      }
+    });
+
+    writeWelcome();
+
+    /* ---- mobile sidebar ---- */
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+    menuToggle.addEventListener('click', () => { sidebar.classList.toggle('open'); backdrop.classList.toggle('visible'); fitAddon.fit(); });
+    backdrop.addEventListener('click', () => { sidebar.classList.remove('open'); backdrop.classList.remove('visible'); });
+  })();
+  </script>
+</body>
+</html>
