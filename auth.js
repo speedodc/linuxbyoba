@@ -77,14 +77,19 @@
 
   /* ---------- Resend email sending ----------
      Send emails via Resend API
-     Requires: VITE_RESEND_API_KEY environment variable set in Netlify
+     Requires: window.RESEND_API_KEY set in HTML <head>
+     
+     Add this to your HTML:
+     <script>
+       window.RESEND_API_KEY = 're_your_actual_key_here';
+     </script>
   ------------------------------------------------- */
 
   async function sendEmail(toEmail, subject, message) {
-    const apiKey = import.meta.env.VITE_RESEND_API_KEY;
+    const apiKey = window.RESEND_API_KEY;
     
     if (!apiKey) {
-      console.error('VITE_RESEND_API_KEY not found in environment variables');
+      console.error('RESEND_API_KEY not found. Add to your HTML <head>: window.RESEND_API_KEY = "your_key"');
       return { error: 'API key missing' };
     }
     
@@ -187,5 +192,5 @@
     adminGetVisitStats,
     adminGetAllUserEmails,
   };
-  window.AUTH_JS_VERSION = '2026-06-21-2'; // bumped for Resend email support
+  window.AUTH_JS_VERSION = '2026-06-21-3'; // fixed Resend to work without Vite
 })();
