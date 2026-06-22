@@ -1,5 +1,5 @@
 /* ============================================================
-   auth.js — shared Supabase auth + game-state save/load
+   auth.js — shared Supabase auth + game-state save/load + Resend emails
    Used by: account.html, game.html (and any other page that
    wants to know if a user is logged in)
    ============================================================ */
@@ -75,6 +75,49 @@
     return { data: data ? data.state : null, error };
   }
 
+  /* ---------- Resend email sending ----------
+     Send emails via Resend API
+     Requires: VITE_RESEND_API_KEY environment variable set in Netlify
+  ------------------------------------------------- */
+
+  async function sendEmail(toEmail, subject, message) {
+    const apiKey = import.meta.env.VITE_RESEND_API_KEY;
+    
+    if (!apiKey) {
+      console.error('VITE_RESEND_API_KEY not found in environment variables');
+      return { error: 'API key missing' };
+    }
+    
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + apiKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: 'onboarding@resend.dev',
+          to: toEmail,
+          subject: subject,
+          html: message
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error('Resend API error:', data);
+        return { error: data.message || 'Failed to send email' };
+      }
+      
+      console.log('Email sent successfully:', data);
+      return { data, error: null };
+    } catch (err) {
+      console.error('sendEmail error:', err);
+      return { error: err.message };
+    }
+  }
+
   /* ---------- admin dashboard ----------
      ADMIN_EMAIL must match the email used in the SQL policies
      in supabase-setup.sql ("Admin can view all progress" and
@@ -137,11 +180,12 @@
     onAuthChange,
     saveProgress,
     loadProgress,
+    sendEmail,
     isAdmin,
     logVisit,
     adminGetAllProgress,
     adminGetVisitStats,
     adminGetAllUserEmails,
   };
-  window.AUTH_JS_VERSION = '2026-06-21-1'; // bump this whenever auth.js changes
+  window.AUTH_JS_VERSION = '2026-06-21-2'; // bumped for Resend email support
 })();
