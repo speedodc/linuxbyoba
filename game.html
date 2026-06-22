@@ -59,40 +59,6 @@
       line-height: 1.5;
     }
 
-    /* ---- profile icon ---- */
-    .profile-icon-link {
-      position: fixed;
-      top: 1.1rem;
-      right: 1.4rem;
-      z-index: 50;
-      width: 38px; height: 38px;
-      border-radius: 50%;
-      background: var(--bg-card);
-      border: 1px solid var(--border-hi);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.05rem;
-      text-decoration: none;
-      transition: all 0.15s;
-    }
-    .profile-icon-link:hover { border-color: var(--green); box-shadow: 0 0 10px rgba(0,230,118,0.25); }
-    .profile-icon-link.logged-in {
-      border-color: rgba(0,230,118,0.4);
-      background: rgba(0,230,118,0.08);
-    }
-    .profile-icon-dot {
-      position: absolute;
-      bottom: -1px; right: -1px;
-      width: 11px; height: 11px;
-      border-radius: 50%;
-      background: var(--border);
-      border: 2px solid var(--bg);
-    }
-    .profile-icon-dot.logged-in { background: var(--green); }
-
-    @media (max-width: 768px) {
-      .profile-icon-link { top: 14px; right: 56px; width: 34px; height: 34px; }
-    }
-
     /* ---- HUD ---- */
     .hud {
       display: flex;
@@ -543,93 +509,6 @@
     }
     .learn-tip strong { color: #e0b8ff; }
 
-    /* ---- signup nudge modal ---- */
-    .nudge-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(5,7,10,0.78);
-      backdrop-filter: blur(2px);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-    .nudge-backdrop.show { display: flex; }
-
-    .nudge-card {
-      width: 100%;
-      max-width: 380px;
-      background: var(--bg-card);
-      border: 1px solid rgba(0,230,118,0.3);
-      border-radius: var(--radius-lg);
-      padding: 1.6rem 1.5rem;
-      position: relative;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-      animation: nudge-in 0.22s ease;
-    }
-    @keyframes nudge-in {
-      from { opacity: 0; transform: translateY(8px) scale(0.98); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .nudge-close {
-      position: absolute;
-      top: 0.7rem; right: 0.8rem;
-      background: none;
-      border: none;
-      color: var(--text-dim);
-      font-size: 1.1rem;
-      cursor: pointer;
-      line-height: 1;
-      padding: 0.2rem;
-    }
-    .nudge-close:hover { color: var(--text); }
-
-    .nudge-icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
-    .nudge-title {
-      font-family: var(--font-mono);
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text-hi);
-      margin-bottom: 0.5rem;
-    }
-    .nudge-body {
-      font-size: 0.85rem;
-      color: var(--text-dim);
-      line-height: 1.6;
-      margin-bottom: 1.2rem;
-    }
-    .nudge-body strong { color: var(--green); }
-
-    .nudge-actions { display: flex; flex-direction: column; gap: 0.55rem; }
-    .nudge-primary {
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #000;
-      background: var(--green);
-      border: none;
-      border-radius: var(--radius);
-      padding: 0.7rem 1rem;
-      cursor: pointer;
-      text-align: center;
-      text-decoration: none;
-      display: block;
-    }
-    .nudge-primary:hover { opacity: 0.88; }
-    .nudge-secondary {
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      color: var(--text-dim);
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 0.6rem 1rem;
-      cursor: pointer;
-    }
-    .nudge-secondary:hover { color: var(--text); border-color: var(--border-hi); }
-
     @media (max-width: 768px) {
       .game-wrap { margin-left: 0; padding-top: 68px; padding-left: 0.75rem; padding-right: 0.75rem; }
       .scene-art { font-size: 0.6rem; min-height: 140px; }
@@ -638,12 +517,6 @@
   </style>
 </head>
 <body>
-
-  <!-- Profile icon -->
-  <a href="account.html" class="profile-icon-link" id="profileIconLink" title="Account">
-    <span id="profileIconEmoji">👤</span>
-    <span class="profile-icon-dot" id="profileIconDot"></span>
-  </a>
 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
@@ -658,7 +531,6 @@
           <li><a href="bash.html"    class="nav-link"><span class="nav-bullet">▸</span> Bash Scripting</a></li>
           <li><a href="install.html" class="nav-link"><span class="nav-bullet">▸</span> Install Linux</a></li>
           <li><a href="game.html"    class="nav-link active"><span class="nav-bullet">▸</span> 🎮 Bash Quest</a></li>
-          <li><a href="account.html" class="nav-link"><span class="nav-bullet">▸</span> 👤 Account</a></li>
         </ul>
       </div>
       <div class="nav-section">
@@ -774,23 +646,6 @@
         <a href="index.html" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">← Study Commands First</a>
       </div>
 
-    </div>
-  </div>
-
-  <!-- Signup nudge modal (shown once to guests at level 5) -->
-  <div class="nudge-backdrop" id="nudgeBackdrop">
-    <div class="nudge-card">
-      <button class="nudge-close" id="nudgeCloseBtn" aria-label="Close">✕</button>
-      <div class="nudge-icon">💾</div>
-      <div class="nudge-title">Don't lose your progress!</div>
-      <div class="nudge-body">
-        You've made it to <strong>Level 5</strong>. Right now your progress only lives in this browser — clear your cache or switch devices and it's gone.<br/><br/>
-        Create a free account to save your score and pick up where you left off, anywhere.
-      </div>
-      <div class="nudge-actions">
-        <a href="account.html" class="nudge-primary">Create Account / Log In</a>
-        <button class="nudge-secondary" id="nudgeDismissBtn">Keep playing as guest</button>
-      </div>
     </div>
   </div>
 
@@ -1485,11 +1340,6 @@
     const gameoverScore = document.getElementById('gameoverScore');
     const sidebarLevelList = document.getElementById('sidebarLevelList');
     const syncStatus     = document.getElementById('syncStatus');
-    const profileIconLink = document.getElementById('profileIconLink');
-    const profileIconDot  = document.getElementById('profileIconDot');
-    const nudgeBackdrop  = document.getElementById('nudgeBackdrop');
-    const nudgeCloseBtn  = document.getElementById('nudgeCloseBtn');
-    const nudgeDismissBtn = document.getElementById('nudgeDismissBtn');
 
     /* ============================================================
        INIT
@@ -1508,10 +1358,8 @@
     }
 
     /* ============================================================
-       PERSISTENCE — saves to Supabase if logged in,
-       otherwise to localStorage as a guest.
+       PERSISTENCE — saves to localStorage as guest
        ============================================================ */
-    let currentUser = null;     // cached Supabase user, or null = guest
     const GUEST_KEY = 'bashQuestGuestProgress';
 
     function snapshotState() {
@@ -1523,52 +1371,10 @@
       };
     }
 
-    function updateProfileIcon() {
-      if (currentUser) {
-        profileIconLink.classList.add('logged-in');
-        profileIconDot.classList.add('logged-in');
-        profileIconLink.title = 'Signed in as ' + currentUser.email;
-      } else {
-        profileIconLink.classList.remove('logged-in');
-        profileIconDot.classList.remove('logged-in');
-        profileIconLink.title = 'Guest — click to sign in';
-      }
-    }
-
-    /* ============================================================
-       SIGNUP NUDGE — shown once to guests when they reach level 5
-       ============================================================ */
-    const NUDGE_SEEN_KEY = 'bashQuestNudgeSeen';
-
-    function maybeShowSignupNudge() {
-      if (currentUser) return;               // already signed in, no need
-      if (state.level < 4) return;            // level index 4 = Level 5
-      let seen = false;
-      try { seen = localStorage.getItem(NUDGE_SEEN_KEY) === '1'; } catch (e) { /* ignore */ }
-      if (seen) return;
-      nudgeBackdrop.classList.add('show');
-    }
-
-    function dismissSignupNudge() {
-      nudgeBackdrop.classList.remove('show');
-      try { localStorage.setItem(NUDGE_SEEN_KEY, '1'); } catch (e) { /* ignore */ }
-    }
-
-    nudgeCloseBtn.addEventListener('click', dismissSignupNudge);
-    nudgeDismissBtn.addEventListener('click', dismissSignupNudge);
-    nudgeBackdrop.addEventListener('click', (e) => {
-      if (e.target === nudgeBackdrop) dismissSignupNudge();
-    });
-
     async function persistProgress() {
       const snap = snapshotState();
-      if (currentUser) {
-        await Auth.saveProgress(snap);
-        syncStatus.textContent = '✓ synced — ' + currentUser.email;
-      } else {
-        try { localStorage.setItem(GUEST_KEY, JSON.stringify(snap)); } catch (e) { /* storage unavailable */ }
-        syncStatus.textContent = 'guest mode — progress saved locally';
-      }
+      try { localStorage.setItem(GUEST_KEY, JSON.stringify(snap)); } catch (e) { /* storage unavailable */ }
+      syncStatus.textContent = 'guest mode — progress saved locally';
     }
 
     function applySnapshot(snap) {
@@ -1582,25 +1388,6 @@
     }
 
     async function startGame() {
-      currentUser = await Auth.getUser();
-      updateProfileIcon();
-
-      if (currentUser) {
-        const { data } = await Auth.loadProgress();
-        if (data && applySnapshot(data)) {
-          syncStatus.textContent = '✓ synced — ' + currentUser.email;
-          if (state.lives <= 0) { init(true); return; }
-          winScreen.classList.remove('show');
-          gameoverScreen.classList.remove('show');
-          scenePanel.style.display = '';
-          renderLevel();
-          return;
-        }
-        syncStatus.textContent = '✓ synced — ' + currentUser.email;
-        init(true);
-        return;
-      }
-
       // Guest: try localStorage
       try {
         const raw = localStorage.getItem(GUEST_KEY);
@@ -1636,7 +1423,6 @@
       renderLives();
       renderMap();
       renderSidebarLevels();
-      maybeShowSignupNudge();
 
       // Scene
       levelBadge.textContent = `Level ${state.level+1}`;
@@ -1773,8 +1559,6 @@
       feedbackBox.innerHTML = `❌ Not quite. The correct answer was:<br/><code style="color:var(--green)">${L.answer[0]}</code>`;
       showLearnTip(L);
       nextBtn.classList.add('show');
-      // Allow skip button to remain enabled - user can skip after failure
-      // skipBtn.disabled = true;
       persistProgress();
       if (state.lives <= 0) {
         setTimeout(gameOver, 1200);
@@ -1902,7 +1686,6 @@
     backdrop.addEventListener('click', () => { sidebar.classList.remove('open'); backdrop.classList.remove('visible'); });
 
     /* ---- start ---- */
-    Auth.logVisit('game.html');
     startGame();
   })();
   </script>
